@@ -1,0 +1,132 @@
+/* ResumeVariantSwitcher Component Styles */
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.selectWrapper {
+  min-width: 200px;
+}
+
+.variantOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.variantName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.primaryBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border-radius: 0.25rem;
+}
+
+.targetRole {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  margin-left: 0.25rem;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.actionButton {
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted-foreground);
+  border-radius: 0.25rem;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.actionButton:hover {
+  color: var(--color-foreground);
+  background-color: var(--color-accent);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.menuSeparator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 0.25rem 0;
+}
+
+.dangerItem {
+  color: var(--color-destructive);
+}
+
+.dangerItem:hover,
+.dangerItem:focus {
+  background-color: var(--color-destructive);
+  color: var(--color-destructive-foreground);
+}
+
+/* Empty state */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-muted-foreground);
+}
+
+.emptyIcon {
+  width: 2rem;
+  height: 2rem;
+  opacity: 0.5;
+}
+
+/* Dialog styles */
+.dialogForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-foreground);
+}
+
+.formInput {
+  width: 100%;
+}
+
+.formHelp {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}

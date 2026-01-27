@@ -1,0 +1,32 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.title {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

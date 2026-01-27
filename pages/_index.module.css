@@ -1,0 +1,247 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-base);
+  display: flex;
+  flex-direction: column;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-6) var(--spacing-8);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  z-index: var(--z-nav);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+}
+
+.brandName {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.navLinks {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-16) var(--spacing-6);
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: var(--spacing-12);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    text-align: left;
+    padding: var(--spacing-20) var(--spacing-8);
+    gap: var(--spacing-16);
+  }
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.heroTitle {
+  font-family: var(--font-family-heading);
+  font-size: 3rem;
+  line-height: 1.1;
+  font-weight: 800;
+  margin-bottom: var(--spacing-6);
+  color: var(--foreground);
+}
+
+.highlight {
+  color: var(--primary);
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-8);
+  max-width: 600px;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .ctaGroup {
+    justify-content: flex-start;
+  }
+}
+
+.heroImageContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.heroCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 4/3;
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  transform: rotate(-2deg);
+  transition: transform 0.3s ease;
+}
+
+.heroCard:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.cardHeader {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.cardDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--muted);
+}
+
+.cardBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2);
+}
+
+.mockRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.mockAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--muted);
+}
+
+.mockLine {
+  height: 8px;
+  flex: 1;
+  background-color: var(--muted);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.mockGraph {
+  margin-top: auto;
+  height: 60px;
+  background: linear-gradient(180deg, var(--primary) 0%, transparent 100%);
+  opacity: 0.1;
+  border-radius: var(--radius);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) var(--spacing-8);
+  max-width: 1200px;
+  width: 100%;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.featureCard {
+  padding: var(--spacing-6);
+  border-radius: var(--radius-md);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.featureIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-4);
+}
+
+.featureCard h3 {
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+}
+
+.featureCard p {
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.footer {
+  padding: var(--spacing-8);
+  text-align: center;
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+  background-color: var(--surface);
+}

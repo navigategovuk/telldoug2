@@ -1,0 +1,125 @@
+.wizard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-bg-primary);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-4) var(--spacing-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6);
+  gap: var(--spacing-2);
+}
+
+.progressStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.progressDot {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.progressStep.active .progressDot {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.progressStep.completed .progressDot {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: white;
+}
+
+.progressLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  transition: color 0.2s ease;
+}
+
+.progressStep.active .progressLabel {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.progressLine {
+  width: 80px;
+  height: 2px;
+  background: var(--color-border);
+  margin-bottom: var(--spacing-6);
+}
+
+.content {
+  flex: 1;
+  padding: var(--spacing-6);
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+
+  .progress {
+    padding: var(--spacing-4);
+  }
+
+  .progressLine {
+    width: 40px;
+  }
+
+  .progressLabel {
+    display: none;
+  }
+
+  .content {
+    padding: var(--spacing-4);
+  }
+}

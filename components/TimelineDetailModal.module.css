@@ -1,0 +1,237 @@
+.modalContent {
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.detailContainer {
+  padding: var(--spacing-6);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.iconLarge {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.detailTitle {
+  font-family: var(--font-family-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: var(--spacing-1);
+  line-height: 1.2;
+}
+
+.detailSubtitle {
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+  background-color: var(--surface);
+  padding: var(--spacing-4);
+  border-radius: var(--radius);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--foreground);
+  font-size: 0.9375rem;
+}
+
+.metaItem svg {
+  color: var(--muted-foreground);
+}
+
+.section {
+  margin-bottom: var(--spacing-6);
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  font-weight: 600;
+  margin-bottom: var(--spacing-3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.description, .notes {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--foreground);
+  white-space: pre-wrap;
+}
+
+.notes {
+  font-family: var(--font-family-monospace);
+  font-size: 0.875rem;
+  background-color: var(--surface);
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent);
+}
+
+.peopleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.personCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+.personAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+}
+
+.personName {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.countBadge {
+  font-size: 0.7rem;
+  height: 1.25rem;
+  padding: 0 6px;
+}
+
+.interactionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.interactionCard {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-3);
+}
+
+.interactionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2);
+}
+
+.interactionType {
+  text-transform: capitalize;
+}
+
+.interactionDate {
+  font-family: var(--font-family-monospace);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.interactionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.interactionPerson {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.interactionNotes {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.emptyText {
+  color: var(--muted-foreground);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Loading Skeletons */
+.loadingContainer {
+  padding: var(--spacing-6);
+}
+
+.titleSkeleton {
+  width: 60%;
+  height: 2rem;
+  margin-bottom: var(--spacing-4);
+}
+
+.metaSkeleton {
+  width: 100%;
+  height: 4rem;
+  margin-bottom: var(--spacing-6);
+}
+
+.bodySkeleton {
+  width: 100%;
+  height: 8rem;
+}
+
+.interactionSkeleton {
+  width: 100%;
+  height: 4rem;
+}

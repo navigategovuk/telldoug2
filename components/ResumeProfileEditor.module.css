@@ -1,0 +1,305 @@
+/* ResumeProfileEditor Component Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Section styles */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-muted-foreground);
+}
+
+.sectionCount {
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: var(--color-muted-foreground);
+}
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Display grid */
+.displayGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.displayItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.displayItem.span2 {
+  grid-column: span 2;
+}
+
+.displayLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.displayValue {
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+}
+
+.displayValueMuted {
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+
+/* Entry list styles */
+.entryList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.entryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+}
+
+.entryHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.entryInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.entryTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.entrySubtitle {
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+}
+
+.entryDate {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+
+.entryDescription {
+  font-size: 0.8125rem;
+  color: var(--color-foreground);
+  line-height: 1.5;
+}
+
+.entryActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  padding: 0.375rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: var(--color-muted-foreground);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.actionButton:hover {
+  color: var(--color-foreground);
+  background-color: var(--color-accent);
+}
+
+.actionButton.danger:hover {
+  color: var(--color-destructive);
+  background-color: var(--color-destructive-100, rgba(239, 68, 68, 0.1));
+}
+
+/* Empty state */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-muted-foreground);
+  background: var(--color-muted);
+  border-radius: 0.375rem;
+}
+
+.emptyIcon {
+  width: 2rem;
+  height: 2rem;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: 0.875rem;
+}
+
+/* Skills/tags display */
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+  background: var(--color-accent);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+}
+
+.tagRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.25rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-muted-foreground);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.tagRemove:hover {
+  color: var(--color-destructive);
+  background-color: var(--color-destructive-100, rgba(239, 68, 68, 0.1));
+}
+
+/* Add entry inline form */
+.addEntryRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.addEntryRow input {
+  flex: 1;
+}
+
+/* Location display */
+.locationDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.locationIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Collapsible sections */
+.collapsibleTrigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.collapseIcon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s;
+}
+
+.collapseIcon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Loading state */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Action Bar */
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.populateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.populateButton svg {
+  width: 1rem;
+  height: 1rem;
+}

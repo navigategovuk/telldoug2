@@ -3,6 +3,9 @@
  * Applies SQL migrations in order, tracking which have been applied
  */
 
+// Load environment variables first
+import '../loadEnv.js';
+
 import { db } from './db.js';
 import { sql } from 'kysely';
 import fs from 'fs/promises';
@@ -68,22 +71,25 @@ async function applyMigration(filename: string): Promise<void> {
   
   console.log(`  Applying ${filename} (${statements.length} statements)...`);
   
-  for (const statement of statements) {
-    if (statement.length > 0) {
-      try {
-        await sql.raw(statement).execute(db);
-      } catch (error) {
-        console.error(`  ✗ Failed on statement: ${statement.substring(0, 100)}...`);
-        throw error;
+  // Execute all statements in a transaction
+  await db.transaction().execute(async (trx) => {
+    for (const statement of statements) {
+      if (statement.length > 0) {
+        try {
+          await sql.raw(statement).execute(trx);
+        } catch (error) {
+          console.error(`  ✗ Failed on statement: ${statement.substring(0, 100)}...`);
+          throw error;
+        }
       }
     }
-  }
-  
-  // Record migration as applied
-  await db
-    .insertInto('_migrations' as any)
-    .values({ name: filename })
-    .execute();
+    
+    // Record migration as applied (within transaction)
+    await trx
+      .insertInto('_migrations' as any)
+      .values({ name: filename })
+      .execute();
+  });
   
   console.log(`  ✓ Applied ${filename}`);
 }

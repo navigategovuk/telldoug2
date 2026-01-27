@@ -7,6 +7,14 @@ import { csrfMiddleware } from "./helpers/csrfMiddleware.js";
 
 const app = new Hono();
 
+// Helper to check if a value is a Response-like object (handles cross-realm issues)
+function isResponse(value: unknown): value is Response {
+  return value !== null && 
+         typeof value === 'object' && 
+         typeof (value as Response).status === 'number' && 
+         (value as Response).headers !== undefined;
+}
+
 // ============================================================================
 // SECURITY MIDDLEWARE
 // ============================================================================
@@ -45,7 +53,7 @@ app.post('/_api/auth/login', async c => {
   try {
     const { handle } = await import("./endpoints/auth/login_with_password_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -59,12 +67,14 @@ app.post('/_api/auth/register', async c => {
   try {
     const { handle } = await import("./endpoints/auth/register_with_password_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    // Check if it's a Response-like object (handles cross-realm Response issues)
+    if (!response || typeof response.status !== 'number' || !response.headers) {
+      console.error("Register endpoint returned non-Response:", typeof response, response);
       return c.text("Invalid response format", 500);
     }
-    return response;
+    return response as Response;
   } catch (e) {
-    console.error(e);
+    console.error("Register endpoint error:", e);
     return c.text("Error loading endpoint: " + (e as Error).message, 500);
   }
 });
@@ -73,7 +83,7 @@ app.post('/_api/auth/logout', async c => {
   try {
     const { handle } = await import("./endpoints/auth/logout_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -87,7 +97,7 @@ app.get('/_api/auth/session', async c => {
   try {
     const { handle } = await import("./endpoints/auth/session_GET.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -101,7 +111,7 @@ app.post('/_api/auth/establish-session', async c => {
   try {
     const { handle } = await import("./endpoints/auth/establish_session_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -115,7 +125,7 @@ app.get('/_api/auth/oauth/authorize', async c => {
   try {
     const { handle } = await import("./endpoints/auth/oauth_authorize_GET.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -129,7 +139,7 @@ app.get('/_api/auth/oauth/callback', async c => {
   try {
     const { handle } = await import("./endpoints/auth/oauth_callback_GET.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -146,7 +156,7 @@ app.post('/_api/import/upload', async c => {
   try {
     const { handle } = await import("./endpoints/import/upload_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -160,7 +170,7 @@ app.post('/_api/import/staging', async c => {
   try {
     const { handle } = await import("./endpoints/import/staging_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -174,7 +184,7 @@ app.post('/_api/import/staging-update', async c => {
   try {
     const { handle } = await import("./endpoints/import/staging-update_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -188,7 +198,7 @@ app.post('/_api/import/commit', async c => {
   try {
     const { handle } = await import("./endpoints/import/commit_POST.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -205,7 +215,7 @@ app.get('/_api/workspace', async c => {
   try {
     const { handle } = await import("./endpoints/workspace_GET.js");
     const response = await handle(c.req.raw);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format", 500);
     }
     return response;
@@ -223,7 +233,7 @@ app.post('_api/ai/chat',async c => {
     const { handle } = await import("./endpoints/ai/chat_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -237,7 +247,7 @@ app.get('_api/jobs/list',async c => {
     const { handle } = await import("./endpoints/jobs/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -251,7 +261,7 @@ app.get('_api/goals/list',async c => {
     const { handle } = await import("./endpoints/goals/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -265,7 +275,7 @@ app.get('_api/events/list',async c => {
     const { handle } = await import("./endpoints/events/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -279,7 +289,7 @@ app.get('_api/people/list',async c => {
     const { handle } = await import("./endpoints/people/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -293,7 +303,7 @@ app.get('_api/skills/list',async c => {
     const { handle } = await import("./endpoints/skills/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -307,7 +317,7 @@ app.get('_api/content/list',async c => {
     const { handle } = await import("./endpoints/content/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -321,7 +331,7 @@ app.post('_api/jobs/create',async c => {
     const { handle } = await import("./endpoints/jobs/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -335,7 +345,7 @@ app.post('_api/jobs/delete',async c => {
     const { handle } = await import("./endpoints/jobs/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -349,7 +359,7 @@ app.post('_api/jobs/update',async c => {
     const { handle } = await import("./endpoints/jobs/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -363,7 +373,7 @@ app.get('_api/feedback/list',async c => {
     const { handle } = await import("./endpoints/feedback/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -377,7 +387,7 @@ app.post('_api/goals/create',async c => {
     const { handle } = await import("./endpoints/goals/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -391,7 +401,7 @@ app.post('_api/goals/delete',async c => {
     const { handle } = await import("./endpoints/goals/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -405,7 +415,7 @@ app.post('_api/goals/update',async c => {
     const { handle } = await import("./endpoints/goals/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -419,7 +429,7 @@ app.get('_api/learning/list',async c => {
     const { handle } = await import("./endpoints/learning/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -433,7 +443,7 @@ app.get('_api/projects/list',async c => {
     const { handle } = await import("./endpoints/projects/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -447,7 +457,7 @@ app.get('_api/search/global',async c => {
     const { handle } = await import("./endpoints/search/global_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -461,7 +471,7 @@ app.get('_api/timeline/data',async c => {
     const { handle } = await import("./endpoints/timeline/data_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -475,7 +485,7 @@ app.post('_api/events/create',async c => {
     const { handle } = await import("./endpoints/events/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -489,7 +499,7 @@ app.post('_api/events/delete',async c => {
     const { handle } = await import("./endpoints/events/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -503,7 +513,7 @@ app.post('_api/events/update',async c => {
     const { handle } = await import("./endpoints/events/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -517,7 +527,7 @@ app.post('_api/people/create',async c => {
     const { handle } = await import("./endpoints/people/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -531,7 +541,7 @@ app.post('_api/people/delete',async c => {
     const { handle } = await import("./endpoints/people/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -545,7 +555,7 @@ app.post('_api/people/update',async c => {
     const { handle } = await import("./endpoints/people/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -559,7 +569,7 @@ app.post('_api/skills/create',async c => {
     const { handle } = await import("./endpoints/skills/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -573,7 +583,7 @@ app.post('_api/skills/delete',async c => {
     const { handle } = await import("./endpoints/skills/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -587,7 +597,7 @@ app.post('_api/skills/update',async c => {
     const { handle } = await import("./endpoints/skills/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -601,7 +611,7 @@ app.post('_api/content/create',async c => {
     const { handle } = await import("./endpoints/content/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -615,7 +625,7 @@ app.post('_api/content/delete',async c => {
     const { handle } = await import("./endpoints/content/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -629,7 +639,7 @@ app.post('_api/content/update',async c => {
     const { handle } = await import("./endpoints/content/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -643,7 +653,7 @@ app.get('_api/dashboard/stats',async c => {
     const { handle } = await import("./endpoints/dashboard/stats_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -657,7 +667,7 @@ app.post('_api/feedback/create',async c => {
     const { handle } = await import("./endpoints/feedback/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -671,7 +681,7 @@ app.post('_api/feedback/delete',async c => {
     const { handle } = await import("./endpoints/feedback/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -685,7 +695,7 @@ app.post('_api/feedback/update',async c => {
     const { handle } = await import("./endpoints/feedback/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -699,7 +709,7 @@ app.post('_api/import/linkedin',async c => {
     const { handle } = await import("./endpoints/import/linkedin_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -713,7 +723,7 @@ app.post('_api/learning/create',async c => {
     const { handle } = await import("./endpoints/learning/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -727,7 +737,7 @@ app.post('_api/learning/delete',async c => {
     const { handle } = await import("./endpoints/learning/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -741,7 +751,7 @@ app.post('_api/learning/update',async c => {
     const { handle } = await import("./endpoints/learning/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -755,7 +765,7 @@ app.post('_api/projects/create',async c => {
     const { handle } = await import("./endpoints/projects/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -769,7 +779,7 @@ app.post('_api/projects/delete',async c => {
     const { handle } = await import("./endpoints/projects/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -783,7 +793,7 @@ app.post('_api/projects/update',async c => {
     const { handle } = await import("./endpoints/projects/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -797,7 +807,7 @@ app.get('_api/achievements/list',async c => {
     const { handle } = await import("./endpoints/achievements/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -811,7 +821,7 @@ app.post('_api/ai/draft-content',async c => {
     const { handle } = await import("./endpoints/ai/draft-content_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -825,7 +835,7 @@ app.post('_api/ai/meeting-brief',async c => {
     const { handle } = await import("./endpoints/ai/meeting-brief_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -839,7 +849,7 @@ app.get('_api/compensation/list',async c => {
     const { handle } = await import("./endpoints/compensation/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -853,7 +863,7 @@ app.get('_api/institutions/list',async c => {
     const { handle } = await import("./endpoints/institutions/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -867,7 +877,7 @@ app.get('_api/interactions/list',async c => {
     const { handle } = await import("./endpoints/interactions/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -881,7 +891,7 @@ app.get('_api/relationships/list',async c => {
     const { handle } = await import("./endpoints/relationships/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -895,7 +905,7 @@ app.post('_api/achievements/create',async c => {
     const { handle } = await import("./endpoints/achievements/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -909,7 +919,7 @@ app.post('_api/achievements/delete',async c => {
     const { handle } = await import("./endpoints/achievements/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -923,7 +933,7 @@ app.post('_api/achievements/update',async c => {
     const { handle } = await import("./endpoints/achievements/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -937,7 +947,7 @@ app.post('_api/ai/career-narrative',async c => {
     const { handle } = await import("./endpoints/ai/career-narrative_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -951,7 +961,7 @@ app.post('_api/compensation/create',async c => {
     const { handle } = await import("./endpoints/compensation/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -965,7 +975,7 @@ app.post('_api/compensation/delete',async c => {
     const { handle } = await import("./endpoints/compensation/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -979,7 +989,7 @@ app.post('_api/compensation/update',async c => {
     const { handle } = await import("./endpoints/compensation/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -993,7 +1003,7 @@ app.post('_api/institutions/create',async c => {
     const { handle } = await import("./endpoints/institutions/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1007,7 +1017,7 @@ app.post('_api/institutions/delete',async c => {
     const { handle } = await import("./endpoints/institutions/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1021,7 +1031,7 @@ app.post('_api/institutions/update',async c => {
     const { handle } = await import("./endpoints/institutions/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1035,7 +1045,7 @@ app.post('_api/interactions/create',async c => {
     const { handle } = await import("./endpoints/interactions/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1049,7 +1059,7 @@ app.post('_api/interactions/delete',async c => {
     const { handle } = await import("./endpoints/interactions/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1063,7 +1073,7 @@ app.post('_api/interactions/update',async c => {
     const { handle } = await import("./endpoints/interactions/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1077,7 +1087,7 @@ app.post('_api/relationships/create',async c => {
     const { handle } = await import("./endpoints/relationships/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1091,7 +1101,7 @@ app.post('_api/relationships/delete',async c => {
     const { handle } = await import("./endpoints/relationships/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1105,7 +1115,7 @@ app.post('_api/relationships/update',async c => {
     const { handle } = await import("./endpoints/relationships/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1124,7 +1134,7 @@ app.get('_api/profile/get',async c => {
     const { handle } = await import("./endpoints/profile/get_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1138,7 +1148,7 @@ app.post('_api/profile/updateBasics',async c => {
     const { handle } = await import("./endpoints/profile/updateBasics_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1152,7 +1162,7 @@ app.post('_api/profile/populate',async c => {
     const { handle } = await import("./endpoints/profile/populate_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1166,7 +1176,7 @@ app.get('_api/profile/work/list',async c => {
     const { handle } = await import("./endpoints/profile/work_list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1180,7 +1190,7 @@ app.post('_api/profile/work/create',async c => {
     const { handle } = await import("./endpoints/profile/work_create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1194,7 +1204,7 @@ app.post('_api/profile/work/update',async c => {
     const { handle } = await import("./endpoints/profile/work_update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1208,7 +1218,7 @@ app.post('_api/profile/work/delete',async c => {
     const { handle } = await import("./endpoints/profile/work_delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1222,7 +1232,7 @@ app.get('_api/profile/education/list',async c => {
     const { handle } = await import("./endpoints/profile/education_list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1236,7 +1246,7 @@ app.post('_api/profile/education/create',async c => {
     const { handle } = await import("./endpoints/profile/education_create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1250,7 +1260,7 @@ app.post('_api/profile/education/update',async c => {
     const { handle } = await import("./endpoints/profile/education_update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1264,7 +1274,7 @@ app.post('_api/profile/education/delete',async c => {
     const { handle } = await import("./endpoints/profile/education_delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1278,7 +1288,7 @@ app.get('_api/profile/skills/list',async c => {
     const { handle } = await import("./endpoints/profile/skills_list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1292,7 +1302,7 @@ app.post('_api/profile/skills/create',async c => {
     const { handle } = await import("./endpoints/profile/skills_create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1306,7 +1316,7 @@ app.post('_api/profile/skills/update',async c => {
     const { handle } = await import("./endpoints/profile/skills_update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1320,7 +1330,7 @@ app.post('_api/profile/skills/delete',async c => {
     const { handle } = await import("./endpoints/profile/skills_delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1334,7 +1344,7 @@ app.get('_api/profile/projects/list',async c => {
     const { handle } = await import("./endpoints/profile/projects_list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1348,7 +1358,7 @@ app.post('_api/profile/projects/create',async c => {
     const { handle } = await import("./endpoints/profile/projects_create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1362,7 +1372,7 @@ app.post('_api/profile/projects/update',async c => {
     const { handle } = await import("./endpoints/profile/projects_update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1376,7 +1386,7 @@ app.post('_api/profile/projects/delete',async c => {
     const { handle } = await import("./endpoints/profile/projects_delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1395,7 +1405,7 @@ app.get('_api/variants/list',async c => {
     const { handle } = await import("./endpoints/variants/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1409,7 +1419,7 @@ app.get('_api/variants/get',async c => {
     const { handle } = await import("./endpoints/variants/get_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1423,7 +1433,7 @@ app.post('_api/variants/create',async c => {
     const { handle } = await import("./endpoints/variants/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1437,7 +1447,7 @@ app.post('_api/variants/update',async c => {
     const { handle } = await import("./endpoints/variants/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1451,7 +1461,7 @@ app.post('_api/variants/delete',async c => {
     const { handle } = await import("./endpoints/variants/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1465,7 +1475,7 @@ app.post('_api/variants/duplicate',async c => {
     const { handle } = await import("./endpoints/variants/duplicate_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1479,7 +1489,7 @@ app.post('_api/variants/setPrimary',async c => {
     const { handle } = await import("./endpoints/variants/setPrimary_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1498,7 +1508,7 @@ app.post('_api/export/generate',async c => {
     const { handle } = await import("./endpoints/export/generate_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1512,7 +1522,7 @@ app.post('_api/export/preview',async c => {
     const { handle } = await import("./endpoints/export/preview_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1531,7 +1541,7 @@ app.get('_api/share/list',async c => {
     const { handle } = await import("./endpoints/share/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1545,7 +1555,7 @@ app.get('_api/share/view',async c => {
     const { handle } = await import("./endpoints/share/view_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1559,7 +1569,7 @@ app.post('_api/share/create',async c => {
     const { handle } = await import("./endpoints/share/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1573,7 +1583,7 @@ app.post('_api/share/update',async c => {
     const { handle } = await import("./endpoints/share/update_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1587,7 +1597,7 @@ app.post('_api/share/delete',async c => {
     const { handle } = await import("./endpoints/share/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1601,7 +1611,7 @@ app.post('_api/share/revoke',async c => {
     const { handle } = await import("./endpoints/share/revoke_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1620,7 +1630,7 @@ app.get('_api/snapshots/list',async c => {
     const { handle } = await import("./endpoints/snapshots/list_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1634,7 +1644,7 @@ app.get('_api/snapshots/get',async c => {
     const { handle } = await import("./endpoints/snapshots/get_GET.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1648,7 +1658,7 @@ app.post('_api/snapshots/create',async c => {
     const { handle } = await import("./endpoints/snapshots/create_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1662,7 +1672,7 @@ app.post('_api/snapshots/delete',async c => {
     const { handle } = await import("./endpoints/snapshots/delete_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;
@@ -1676,7 +1686,7 @@ app.post('_api/snapshots/restore',async c => {
     const { handle } = await import("./endpoints/snapshots/restore_POST.js");
     const request = c.req.raw;
     const response = await handle(request);
-    if (!(response instanceof Response)) {
+    if (!isResponse(response)) {
       return c.text("Invalid response format. handle should always return a Response object.", 500);
     }
     return response;

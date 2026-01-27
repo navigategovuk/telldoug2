@@ -14,7 +14,8 @@ import { createApiError, type ApiError } from "./errorTypes";
 // CONSTANTS
 // ============================================================================
 
-const CSRF_COOKIE_NAME = "__Host-csrf";
+// Use __Host- prefix only in production (requires Secure cookie)
+const CSRF_COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Host-csrf" : "csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours

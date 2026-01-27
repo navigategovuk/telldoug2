@@ -48,3 +48,4 @@ temp/
 # Database
 *.sqlite
 *.db
+env.json

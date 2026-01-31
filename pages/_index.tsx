@@ -4,6 +4,7 @@ import { Button } from "../components/Button";
 import { ArrowRight, Users, Briefcase, Network } from "lucide-react";
 import { Helmet } from "react-helmet";
 import styles from "./_index.module.css";
+import { LOGO_URL } from "../helpers/brand";
 
 export default function LandingPage() {
   return (
@@ -19,11 +20,10 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.logoContainer}>
           <img
-            src="https://assets.floot.app/79b82a6e-ad98-4978-87df-e15471f09436/fe204399-5542-4950-a373-e70feddbeee4.png"
+            src={LOGO_URL}
             alt="TellDoug Logo"
             className={styles.logo}
           />
-          <span className={styles.brandName}>TellDoug</span>
         </div>
         <div className={styles.navLinks}>
           <Button variant="ghost" asChild>

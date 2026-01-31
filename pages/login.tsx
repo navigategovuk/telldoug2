@@ -5,6 +5,7 @@ import { useAuth } from "../helpers/useAuth";
 import { OAuthButtonGroup } from "../components/OAuthButtonGroup";
 import { AuthLoadingState } from "../components/AuthLoadingState";
 import styles from "./login.module.css";
+import { BRAND_NAME, LOGO_URL } from "../helpers/brand";
 
 export default function LoginPage() {
   const { authState } = useAuth();
@@ -29,9 +30,13 @@ export default function LoginPage() {
       <main className={styles.card}>
         <div className={styles.header}>
           <div className={styles.logoContainer}>
-            <div className={styles.logoIcon} />
+            <img
+              src={LOGO_URL}
+              alt={`${BRAND_NAME} Logo`}
+              className={styles.logoIcon}
+            />
           </div>
-          <h1 className={styles.title}>TellDoug</h1>
+          <h1 className={styles.srOnly}>{BRAND_NAME}</h1>
           <p className={styles.tagline}>Your career management operating system</p>
         </div>
 

@@ -25,7 +25,7 @@ describe('logger', () => {
       logger.info('Test message');
 
       expect(consoleLogSpy).toHaveBeenCalledTimes(1);
-      const loggedJson = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleLogSpy.mock.calls[0][0]));
       
       expect(loggedJson.level).toBe('info');
       expect(loggedJson.message).toBe('Test message');
@@ -35,7 +35,7 @@ describe('logger', () => {
     it('includes context when provided', () => {
       logger.info('Test message', { userId: 'user-123', requestId: 'req-456' });
 
-      const loggedJson = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleLogSpy.mock.calls[0][0]));
       
       expect(loggedJson.context.userId).toBe('user-123');
       expect(loggedJson.context.requestId).toBe('req-456');
@@ -47,7 +47,7 @@ describe('logger', () => {
       logger.warn('Warning message');
 
       expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-      const loggedJson = JSON.parse(consoleWarnSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleWarnSpy.mock.calls[0][0]));
       
       expect(loggedJson.level).toBe('warn');
       expect(loggedJson.message).toBe('Warning message');
@@ -60,7 +60,7 @@ describe('logger', () => {
       logger.error('Error occurred', testError);
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      const loggedJson = JSON.parse(consoleErrorSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleErrorSpy.mock.calls[0][0]));
       
       expect(loggedJson.level).toBe('error');
       expect(loggedJson.message).toBe('Error occurred');
@@ -71,7 +71,7 @@ describe('logger', () => {
     it('handles missing error object', () => {
       logger.error('Error occurred');
 
-      const loggedJson = JSON.parse(consoleErrorSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleErrorSpy.mock.calls[0][0]));
       
       expect(loggedJson.level).toBe('error');
       expect(loggedJson.error).toBeUndefined();
@@ -83,7 +83,7 @@ describe('logger', () => {
       const childLogger = logger.child({ workspaceId: 'ws-123' });
       childLogger.info('Child message');
 
-      const loggedJson = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleLogSpy.mock.calls[0][0]));
       
       expect(loggedJson.context.workspaceId).toBe('ws-123');
     });
@@ -92,7 +92,7 @@ describe('logger', () => {
       const childLogger = logger.child({ workspaceId: 'ws-123' });
       childLogger.info('Child message', { userId: 'user-456' });
 
-      const loggedJson = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+      const loggedJson = JSON.parse(String(consoleLogSpy.mock.calls[0][0]));
       
       expect(loggedJson.context.workspaceId).toBe('ws-123');
       expect(loggedJson.context.userId).toBe('user-456');
@@ -106,11 +106,11 @@ describe('logger', () => {
 
       expect(consoleLogSpy).toHaveBeenCalledTimes(2);
       
-      const startLog = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+      const startLog = JSON.parse(String(consoleLogSpy.mock.calls[0][0]));
       expect(startLog.context.requestId).toBe('req-123');
       expect(startLog.context.method).toBe('GET');
       
-      const endLog = JSON.parse(consoleLogSpy.mock.calls[1][0]);
+      const endLog = JSON.parse(String(consoleLogSpy.mock.calls[1][0]));
       expect(endLog.context.statusCode).toBe(200);
       expect(endLog.context.duration).toBe(45);
     });

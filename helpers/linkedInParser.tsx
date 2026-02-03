@@ -548,17 +548,17 @@ export async function parseLinkedInZip(file: File | ArrayBuffer): Promise<ParseR
         content = skipPreambleLines(content, zipFile.name);
 
         // Parse CSV
-        const parsed = Papa.parse<Record<string, unknown>>(content, {
+        const parsed = Papa.parse(content, {
           header: true,
           skipEmptyLines: true,
-          transformHeader: (h) => h.trim(),
+          transformHeader: (h: string) => h.trim(),
         });
 
         if (parsed.errors.length > 0) {
           errors.push(
             `Errors parsing ${zipFile.name}: ${parsed.errors
               .slice(0, 3)
-              .map((e) => e.message)
+              .map((e: { message: string }) => e.message)
               .join(", ")}`
           );
         }
@@ -645,17 +645,17 @@ export async function parseLinkedInCSV(
   };
 
   try {
-    const parsed = Papa.parse<Record<string, unknown>>(content, {
+    const parsed = Papa.parse(content, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (h) => h.trim(),
+      transformHeader: (h: string) => h.trim(),
     });
 
     if (parsed.errors.length > 0) {
       errors.push(
         `Errors parsing CSV: ${parsed.errors
           .slice(0, 3)
-          .map((e) => e.message)
+          .map((e: { message: string }) => e.message)
           .join(", ")}`
       );
     }

@@ -249,7 +249,7 @@ export function generatePDF(
 
       // Generate PDF
       const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-      pdfDocGenerator.getBlob((blob) => {
+      pdfDocGenerator.getBlob((blob: Blob) => {
         const filename = getFilename(
           basics?.name || "resume",
           "pdf",

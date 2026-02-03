@@ -41,6 +41,7 @@
     "node_modules",
     "dist",
     "../_archive",
-    "_archive"
+    "_archive",
+    "vitest.config.ts"
   ]
 }

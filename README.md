@@ -76,3 +76,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 Made with [Floot](https://floot.dev)
 
+## Deployment (Vercel)
+
+The `vercel.yml` workflow deploys previews on pull requests and production on pushes/tags to `main`.
+
+Required repository secrets:
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+Set the Vercel project build output to `dist` (or keep `vercel.json` as the source of truth).
+

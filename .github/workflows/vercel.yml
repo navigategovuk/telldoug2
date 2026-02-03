@@ -1,0 +1,59 @@
+name: Vercel Deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: vercel-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Vercel pull (preview)
+        if: github.event_name == 'pull_request'
+        run: npx vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Vercel pull (production)
+        if: github.event_name != 'pull_request'
+        run: npx vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Vercel build (preview)
+        if: github.event_name == 'pull_request'
+        run: npx vercel build --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Vercel build (production)
+        if: github.event_name != 'pull_request'
+        run: npx vercel build --prod --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Vercel deploy (preview)
+        if: github.event_name == 'pull_request'
+        run: npx vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Vercel deploy (production)
+        if: github.event_name != 'pull_request'
+        run: npx vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }}

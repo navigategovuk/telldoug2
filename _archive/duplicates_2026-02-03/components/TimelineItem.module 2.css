@@ -1,0 +1,193 @@
+.container {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-4);
+  z-index: var(--z-content);
+}
+
+.container:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.container.highlighted {
+  background-color: color-mix(in srgb, var(--primary) 5%, var(--card));
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* Vertical line connector */
+.container::before {
+  content: "";
+  position: absolute;
+  left: -25px; /* Adjust based on parent padding */
+  top: 2rem;
+  bottom: -2rem; /* Connect to next item */
+  width: 2px;
+  background-color: var(--border);
+  z-index: -1;
+}
+
+.container:last-child::before {
+  display: none;
+}
+
+/* Dot on the line */
+.container::after {
+  content: "";
+  position: absolute;
+  left: -29px; /* Center on the line */
+  top: 1.5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--border);
+  border: 2px solid var(--background);
+  z-index: 0;
+}
+
+.container:hover::after {
+  background-color: var(--primary);
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.job {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.institution {
+  background-color: #8b5cf6; /* Purple */
+  color: white;
+}
+
+.event {
+  background-color: #f97316; /* Orange */
+  color: white;
+}
+
+.project {
+  background-color: var(--success);
+  color: var(--success-foreground);
+}
+
+.achievement {
+  background-color: #eab308; /* Gold/Yellow */
+  color: white;
+}
+
+.feedback {
+  background-color: #14b8a6; /* Teal/Cyan */
+  color: white;
+}
+
+.goal {
+  background-color: #6366f1; /* Indigo */
+  color: white;
+}
+
+.compensation {
+  background-color: #10b981; /* Emerald/Green */
+  color: white;
+}
+
+.learning {
+  background-color: #a855f7; /* Purple */
+  color: white;
+}
+
+.contentItem {
+  background-color: #f43f5e; /* Rose/Pink */
+  color: white;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-1);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.date {
+  font-family: var(--font-family-monospace);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-3);
+}
+
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.personBadge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.personBadge:hover,
+.personBadgeActive {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.personIcon {
+  opacity: 0.7;
+}
+
+.moreBadge {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .container::before,
+  .container::after {
+    display: none;
+  }
+  
+  .header {
+    flex-direction: column;
+  }
+}

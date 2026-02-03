@@ -1,0 +1,20 @@
+@keyframes highlightPulse {
+  0% {
+    background-color: color-mix(in srgb, var(--primary, #000) 20%, transparent);
+    box-shadow: 0 0 0 2px var(--primary, #000);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--primary, #000) 10%, transparent);
+    box-shadow: 0 0 0 1px var(--primary, #000);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.highlighted {
+  animation: highlightPulse 3s ease-out forwards;
+  border-radius: 6px; /* Default radius, can be overridden */
+  transition: all 0.3s ease;
+}

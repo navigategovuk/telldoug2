@@ -1,0 +1,106 @@
+.widget {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  box-shadow: var(--shadow);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activityItem {
+  padding: var(--spacing-3);
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.activityItem:hover {
+  background-color: color-mix(in srgb, var(--surface) 95%, var(--primary));
+  border-color: var(--border);
+}
+
+.activityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2);
+}
+
+.activityDate {
+  font-size: 0.75rem;
+  font-family: var(--font-family-monospace);
+  color: var(--muted-foreground);
+}
+
+.activityPerson {
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0 0 var(--spacing-1) 0;
+  font-size: 0.9375rem;
+}
+
+.projectLink {
+  color: var(--primary);
+  font-weight: 400;
+  font-size: 0.875rem;
+  margin-left: var(--spacing-2);
+}
+
+.activityNotes {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--muted-foreground);
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.emptyState p {
+  margin: 0;
+}

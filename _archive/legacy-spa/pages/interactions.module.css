@@ -1,0 +1,140 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.toolbar {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.filterContainer {
+  width: 200px;
+}
+
+.filterSelect {
+  background-color: var(--card);
+}
+
+.tableContainer {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.table th {
+  text-align: left;
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+  color: var(--muted-foreground);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: var(--spacing-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.row:hover {
+  background-color: var(--surface);
+}
+
+.dateCell {
+  font-family: var(--font-family-monospace);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.typeBadge {
+  text-transform: capitalize;
+}
+
+.personName {
+  font-weight: 500;
+}
+
+.projectName {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+.tagBadge {
+  font-size: 0.75rem;
+  padding: 0 var(--spacing-2);
+  height: 1.25rem;
+}
+
+.notesPreview {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.actionsHeader {
+  width: 48px;
+}
+
+.actionsCell {
+  text-align: right;
+}
+
+.deleteItem {
+  color: var(--error);
+}
+
+.deleteItem:hover {
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+  color: var(--error);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-12);
+  color: var(--muted-foreground);
+}
+
+.skeletonCell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}

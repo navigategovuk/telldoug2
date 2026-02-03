@@ -1,0 +1,121 @@
+.dialogContent {
+  max-width: 650px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.icon {
+  color: var(--primary);
+}
+
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-1);
+  margin: var(--spacing-2) 0;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2);
+}
+
+.resultContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: var(--spacing-4);
+  overflow-y: auto;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  height: 100%;
+}
+
+.loadingHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+  color: var(--muted-foreground);
+}
+
+.loadingText {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.spinIcon {
+  animation: spin 2s linear infinite;
+}
+
+.mutedIcon {
+  color: var(--muted-foreground);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.skeletonLine {
+  height: 1rem;
+}
+
+.spacer {
+  height: var(--spacing-4);
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--error);
+  text-align: center;
+  gap: var(--spacing-2);
+}
+
+.errorMessage {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.retryButton {
+  margin-top: var(--spacing-2);
+}
+
+.draftContent {
+  font-family: var(--font-family-base);
+  line-height: 1.6;
+  color: var(--foreground);
+  white-space: pre-wrap;
+}
+
+.draftLine {
+  margin-bottom: 0.75em;
+}
+
+.draftLine:empty {
+  height: 1em;
+}

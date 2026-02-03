@@ -1,0 +1,162 @@
+@import url(https://fonts.googleapis.com/css2?family=Outfit:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=Fira+Code:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=Caveat:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+:root {
+  /* Content layers */
+  --z-content-low: 10; /* Minor elevated content */
+  --z-content: 20; /* Standard elevated content */
+  --z-content-high: 30; /* Important content that needs prominence */
+
+  /* Navigation layers */
+  --z-nav-low: 100; /* Secondary navigation components */
+  --z-nav: 200; /* Primary navigation bars */
+  --z-nav-sticky: 300; /* Sticky navigation elements */
+
+  /* Overlay layers */
+  --z-overlay: 400;
+
+  --z-spotlight: 1000; /* Tutorial spotlights/guided help */
+
+  /* System layers */
+  --z-critical: 2000; /* Critical system notifications */
+
+  /* spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: 3rem;
+  --spacing-13: 3.25rem;
+  --spacing-14: 3.5rem;
+  --spacing-15: 3.75rem;
+  --spacing-16: 4rem;
+  --spacing-17: 4.25rem;
+  --spacing-18: 4.5rem;
+  --spacing-19: 4.75rem;
+  --spacing-20: 5rem;
+}
+
+:root {
+  /* Light Mode (Default) - Warm, Paper-like, Clean */
+  --background: hsl(40 20% 98%); /* Very subtle warm off-white/sand */
+  --foreground: hsl(220 40% 20%); /* Deep slate for primary text */
+
+  --surface: hsl(0 0% 100%); /* Pure white for cards */
+  --surface-foreground: hsl(220 40% 20%);
+  
+  --sidebar: hsl(40 15% 95%); /* Slightly darker sand for sidebar */
+  --sidebar-foreground: hsl(220 30% 30%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(220 40% 20%);
+
+  --popup: hsl(0 0% 100%);
+  --popup-foreground: hsl(220 40% 20%);
+
+  /* Primary: Deep Slate Blue (Professional yet friendly, matches logo vibe) */
+  --primary: hsl(215 60% 35%); 
+  --primary-foreground: hsl(0 0% 100%);
+
+  /* Secondary: Sage Green (Growth, Skills, Positive reinforcement) */
+  --secondary: hsl(140 25% 90%); 
+  --secondary-foreground: hsl(145 60% 25%);
+
+  /* Accent: Warm Clay (For highlights, important timeline events) */
+  --accent: hsl(25 70% 92%);
+  --accent-foreground: hsl(25 80% 30%);
+
+  --muted: hsl(220 15% 94%);
+  --muted-foreground: hsl(220 10% 50%);
+
+  --success: hsl(145 60% 40%);
+  --success-foreground: hsl(0 0% 100%);
+
+  --error: hsl(0 70% 60%);
+  --error-foreground: hsl(0 0% 100%);
+
+  --warning: hsl(35 90% 60%);
+  --warning-foreground: hsl(0 0% 100%);
+
+  --info: hsl(210 80% 60%);
+  --info-foreground: hsl(0 0% 100%);
+  --info-hover: hsl(210 80% 50%);
+  --info-active: hsl(210 80% 40%);
+
+  --border: hsl(220 15% 90%); /* Subtle cool gray border */
+
+  /* Font Families */
+  /* Using 'Outfit' for headings (geometric, friendly like the logo) and 'JetBrains Mono' for data */
+  --font-family-base: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-family-monospace: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-family-cursive: 'Caveat', cursive; /* For personal notes/journal entries */
+
+  /* Border Radius - Generous and friendly */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows - Very subtle, diffuse, "paper" feel */
+  --shadow: 0 1px 2px 0 hsl(220 20% 10% / 0.05);
+  --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.05), 0 2px 4px -1px hsl(220 20% 10% / 0.03);
+  --shadow-lg: 0 10px 15px -3px hsl(220 20% 10% / 0.05), 0 4px 6px -2px hsl(220 20% 10% / 0.025);
+  --shadow-focus: 0 0 0 4px hsl(215 60% 35% / 0.15);
+
+  /* Animation */
+  --animation-duration-fast: 150ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
+
+  /* Chart Colors - Earthy but distinct */
+  --chart-color-1: hsl(215 60% 45%); /* Blue */
+  --chart-color-2: hsl(150 40% 45%); /* Green */
+  --chart-color-3: hsl(35 80% 55%);  /* Mustard */
+  --chart-color-4: hsl(10 70% 60%);  /* Terracotta */
+  --chart-color-5: hsl(260 30% 55%); /* Muted Purple */
+}
+
+.dark {
+  /* Dark Mode - Deep, "Night Shift" OS, High Contrast Data */
+  --background: hsl(220 30% 10%); /* Very dark blue-grey */
+  --foreground: hsl(220 20% 95%);
+
+  --surface: hsl(220 25% 14%); /* Slightly lighter surface */
+  --surface-foreground: hsl(220 20% 95%);
+
+  --sidebar: hsl(220 30% 8%);
+  --sidebar-foreground: hsl(220 20% 80%);
+
+  --card: hsl(220 25% 14%);
+  --card-foreground: hsl(220 20% 95%);
+
+  --popup: hsl(220 25% 16%);
+  --popup-foreground: hsl(220 20% 95%);
+
+  --primary: hsl(215 70% 60%); /* Brighter blue for dark mode visibility */
+  --primary-foreground: hsl(220 30% 10%);
+
+  --secondary: hsl(140 20% 20%); /* Dark Sage */
+  --secondary-foreground: hsl(140 60% 80%);
+
+  --accent: hsl(25 40% 20%); /* Dark Clay */
+  --accent-foreground: hsl(25 80% 80%);
+
+  --muted: hsl(220 20% 20%);
+  --muted-foreground: hsl(220 10% 65%);
+
+  --border: hsl(220 20% 22%); /* Lighter border for definition in dark mode */
+  
+  /* Adjust shadows for dark mode to be barely visible or rely on borders */
+  --shadow: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3);
+}

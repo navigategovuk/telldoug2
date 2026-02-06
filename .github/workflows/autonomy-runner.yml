@@ -1,0 +1,127 @@
+name: autonomy-runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      backlog_file:
+        description: "Backlog file under autonomy/backlog"
+        required: true
+        default: "phase2-quality-safety.yaml"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      risk: ${{ steps.classify.outputs.risk }}
+      max_retries: ${{ steps.classify.outputs.max_retries }}
+      backlog_id: ${{ steps.classify.outputs.backlog_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run autonomy:validate-backlog
+      - name: Classify backlog risk
+        id: classify
+        run: |
+          mkdir -p autonomy-artifacts
+          node autonomy/riskClassifier.mjs \
+            --policy autonomy/policy.yaml \
+            --backlog "autonomy/backlog/${{ github.event.inputs.backlog_file }}" \
+            --output autonomy-artifacts/risk-report.json
+          node - <<'NODE'
+          const fs = require("fs");
+          const report = JSON.parse(fs.readFileSync("autonomy-artifacts/risk-report.json", "utf8"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `risk=${report.risk}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `max_retries=${report.maxRetries}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `backlog_id=${report.backlogId}\n`);
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autonomy-risk-report
+          path: autonomy-artifacts/risk-report.json
+
+  human_gate:
+    needs: prepare
+    if: ${{ needs.prepare.outputs.risk == 'high' }}
+    runs-on: ubuntu-latest
+    environment: high-risk-review
+    steps:
+      - run: echo "Human gate approved for high-risk backlog."
+
+  implement_verify:
+    needs: [prepare, human_gate]
+    if: ${{ always() && needs.prepare.result == 'success' && (needs.prepare.outputs.risk != 'high' || needs.human_gate.result == 'success') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - name: Plan/Implement/Verify loop with retries
+        id: verify_loop
+        run: |
+          set +e
+          max_retries="${{ needs.prepare.outputs.max_retries }}"
+          attempts=0
+          success=false
+          while true; do
+            attempts=$((attempts + 1))
+            echo "Attempt ${attempts} of $((max_retries + 1))"
+            npm run contracts:generate && npm run build && npm run test:all
+            code=$?
+            if [ $code -eq 0 ]; then
+              success=true
+              break
+            fi
+            if [ $attempts -ge $((max_retries + 1)) ]; then
+              break
+            fi
+            sleep 2
+          done
+          echo "attempts=${attempts}" >> "$GITHUB_OUTPUT"
+          echo "success=${success}" >> "$GITHUB_OUTPUT"
+          if [ "$success" != "true" ]; then
+            exit 1
+          fi
+      - name: Generate deterministic run artifacts
+        run: |
+          node autonomy/scripts/generateRunArtifacts.mjs \
+            --output autonomy-artifacts \
+            --backlog "${{ needs.prepare.outputs.backlog_id }}" \
+            --risk "${{ needs.prepare.outputs.risk }}" \
+            --attempts "${{ steps.verify_loop.outputs.attempts }}" \
+            --success "${{ steps.verify_loop.outputs.success }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autonomy-run-artifacts
+          path: autonomy-artifacts/
+      - name: Create PR with autonomy findings
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: codex/autonomy-${{ needs.prepare.outputs.backlog_id }}-${{ github.run_id }}
+          title: "Autonomy run: ${{ needs.prepare.outputs.backlog_id }} (risk: ${{ needs.prepare.outputs.risk }})"
+          commit-message: "chore(autonomy): publish run artifacts for ${{ needs.prepare.outputs.backlog_id }}"
+          body: |
+            Automated run artifacts generated.
+
+            - Backlog: `${{ needs.prepare.outputs.backlog_id }}`
+            - Risk: `${{ needs.prepare.outputs.risk }}`
+            - Attempts: `${{ steps.verify_loop.outputs.attempts }}`
+            - Success: `${{ steps.verify_loop.outputs.success }}`
+
+            Files:
+            - `autonomy-artifacts/risk-report.json`
+            - `autonomy-artifacts/run-summary.json`
+            - `autonomy-artifacts/acceptance-results.json`
+          add-paths: |
+            autonomy-artifacts/**

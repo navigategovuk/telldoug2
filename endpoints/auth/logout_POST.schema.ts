@@ -1,30 +1,24 @@
-import { z } from "zod";
+import superjson from "superjson";
 
-// No input required for logout
-export const schema = z.object({});
+export type OutputType = { ok: boolean };
 
-export type OutputType =
-  | {
-      success: boolean;
-      message: string;
-    }
-  | {
-      error: string;
-      message?: string;
-    };
-
-export const postLogout = async (
-  body: z.infer<typeof schema> = {},
-  init?: RequestInit
-): Promise<OutputType> => {
+export async function postLogout(init?: RequestInit): Promise<OutputType> {
   const result = await fetch(`/_api/auth/logout`, {
     method: "POST",
-    body: JSON.stringify(body),
     ...init,
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
+    credentials: "include",
   });
-  return result.json();
-};
+
+  const text = await result.text();
+  if (!result.ok) {
+    const parsed = text ? superjson.parse<any>(text) : null;
+    throw new Error((typeof parsed?.error === "string" ? parsed.error : parsed?.error?.message) ?? "Logout failed");
+  }
+
+  const parsedBody = superjson.parse<any>(text);
+  return (parsedBody && typeof parsedBody === "object" && "data" in parsedBody ? parsedBody.data : parsedBody) as OutputType;
+}

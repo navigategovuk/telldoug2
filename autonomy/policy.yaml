@@ -1,0 +1,57 @@
+version: 1
+mode: dev_autonomy_first
+
+allowed_paths:
+  - App.tsx
+  - server.ts
+  - components/**
+  - pages/**
+  - endpoints/**
+  - helpers/**
+  - contracts/**
+  - migrations/**
+  - autonomy/**
+  - .github/workflows/**
+  - README.md
+  - package.json
+  - package-lock.json
+
+forbidden_operations:
+  - destructive_git_reset
+  - cross_tenant_data_mutation_without_guard
+  - direct_prod_secret_rotation
+  - policy_publish_without_version_snapshot
+
+escalation_rules:
+  - id: moderation_high_risk
+    when:
+      category: moderation
+      risk: high
+    action: require_human_final_gate
+  - id: security_control_changes
+    when:
+      category: security
+      risk: medium_or_above
+    action: require_human_review
+  - id: db_migration_drop_or_rename
+    when:
+      category: database
+      operation: destructive
+    action: require_human_review
+
+autonomous_retry:
+  low_risk_failures:
+    max_attempts: 2
+  medium_risk_failures:
+    max_attempts: 1
+  high_risk_failures:
+    max_attempts: 0
+
+required_checks:
+  - build
+  - test_unit
+  - test_integration
+  - test_accessibility
+  - test_e2e
+  - test_security
+  - contract_snapshot_up_to_date

@@ -1,54 +1,42 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../helpers/useAuth";
-import { User } from "../helpers/User";
-import { AuthErrorPage } from "./AuthErrorPage";
 import { ShieldOff } from "lucide-react";
+import { useAuth } from "../helpers/useAuth";
 import { AuthLoadingState } from "./AuthLoadingState";
-import styles from "./ProtectedRoute.module.css";
+import { AuthErrorPage } from "./AuthErrorPage";
 
-// Inner component that uses the hook - valid because it's named like a component
-function ProtectedRouteInner({ roles, children }: { roles: User["role"][]; children: React.ReactNode }) {
-  const { authState } = useAuth();
+type AllowedRole = "applicant" | "caseworker" | "platform_admin";
 
-  // Show loading state while checking authentication
-  if (authState.type === "loading") {
-    return <AuthLoadingState title="Authenticating" />;
-  }
+const makeProtectedRoute = (allowedRoles: AllowedRole[]) => {
+  return function ProtectedRoute({ children }: { children: React.ReactNode }) {
+    const { authState } = useAuth();
 
-  // Redirect to login if not authenticated
-  if (authState.type === "unauthenticated") {
-    return <Navigate to="/login" replace />;
-  }
+    if (authState.type === "loading") {
+      return <AuthLoadingState title="Checking Session" />;
+    }
 
-  if (!roles.includes(authState.user.role)) {
-    return (
-      <AuthErrorPage
-        title="Access Denied"
-        message={`Access denied. Your role (${authState.user.role}) lacks required permissions.`}
-        icon={<ShieldOff className={styles.accessDeniedIcon} size={64} />}
-      />
-    );
-  }
+    if (authState.type === "mfa_required") {
+      return <Navigate to="/login?mfa=required" replace />;
+    }
 
-  // Render children if authenticated
-  return <>{children}</>;
-}
+    if (authState.type === "unauthenticated") {
+      return <Navigate to="/login" replace />;
+    }
 
-// Do not use this in pageLayout
-// Factory function to create role-specific route components
-function MakeProtectedRoute(roles: User["role"][]): React.FC<{ children: React.ReactNode }> {
-  const RouteComponent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    return <ProtectedRouteInner roles={roles}>{children}</ProtectedRouteInner>;
+    if (!allowedRoles.includes(authState.context.user.role)) {
+      return (
+        <AuthErrorPage
+          title="Access Denied"
+          message="You do not have permission to access this area."
+          icon={<ShieldOff size={64} />}
+        />
+      );
+    }
+
+    return <>{children}</>;
   };
-  RouteComponent.displayName = `ProtectedRoute(${roles.join(",")})`;
-  return RouteComponent;
-}
+};
 
-// Create protected routes here, then import them in pageLayout
-export const AdminRoute = MakeProtectedRoute(["admin"]);
-export const OwnerRoute = MakeProtectedRoute(["owner", "admin"]);
-export const UserRoute = MakeProtectedRoute(["user", "admin"]);
-
-// TellDoug: Also allow "owner" role access to UserRoute for backward compatibility
-export const AuthenticatedRoute = MakeProtectedRoute(["user", "admin", "owner"]);
+export const ApplicantRoute = makeProtectedRoute(["applicant"]);
+export const CaseworkerRoute = makeProtectedRoute(["caseworker", "platform_admin"]);
+export const PlatformAdminRoute = makeProtectedRoute(["platform_admin"]);

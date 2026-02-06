@@ -1,0 +1,37 @@
+name: autonomy-implement
+
+on:
+  workflow_dispatch:
+    inputs:
+      backlog_id:
+        description: "Backlog file id (e.g. phase1-stabilize-delegacy)"
+        required: false
+        type: string
+
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run autonomy:validate-backlog
+      - run: npm run contracts:generate
+      - run: npm run build
+      - run: npm run test:all
+      - name: Generate implementation artifact
+        run: |
+          mkdir -p autonomy-artifacts
+          {
+            echo "timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+            echo "backlog_id=${{ inputs.backlog_id }}"
+            echo "commit_sha=${GITHUB_SHA}"
+            echo "status=implemented"
+          } > autonomy-artifacts/implement-summary.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autonomy-implement-artifacts
+          path: autonomy-artifacts/

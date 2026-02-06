@@ -3,24 +3,18 @@ import { jwtVerify, SignJWT } from "jose";
 const encoder = new TextEncoder();
 const secret = process.env.JWT_SECRET;
 
-export const SessionExpirationSeconds = 60 * 60 * 24 * 7; // 1 week
-// Probability to run cleanup (10%)
+export const SessionExpirationSeconds = 60 * 60 * 24 * 7; // 7 days
 export const CleanupProbability = 0.1;
 
-// Only send the ID in the cookie to the client
-// We should store id -> user id and user data mapping in our database for max security
+const CookieName = "floot_built_app_session";
+
 export interface Session {
-  // this should be a crypto random string
   id: string;
   createdAt: number;
   lastAccessed: number;
-
-  // Whether the user needs to change their password
-  // Useful for password reset or setting up new user with initial password
-  passwordChangeRequired?: boolean;
+  activeOrganizationId: number | null;
+  mfaPending: boolean;
 }
-
-const CookieName = "telldoug_session";
 
 export class NotAuthenticatedError extends Error {
   constructor(message?: string) {
@@ -29,55 +23,68 @@ export class NotAuthenticatedError extends Error {
   }
 }
 
-/**
- * Returns the user session or throw an error. Make sure to handle the error (return a proper request)
- */
-export async function getServerSessionOrThrow(
-  request: Request
-): Promise<Session> {
-  // Note: if session is valid, also consider making the cookie rolling by using setSession
+function ensureSecret() {
+  if (!secret || secret.length < 32) {
+    throw new Error("JWT_SECRET must be configured and at least 32 characters");
+  }
+}
 
+function parseCookies(request: Request): Record<string, string> {
   const cookieHeader = request.headers.get("cookie") || "";
-  const cookies = cookieHeader
+  return cookieHeader
     .split(";")
-    .reduce((cookies: Record<string, string>, cookie) => {
-      const [name, value] = cookie.trim().split("=");
-      if (name && value) {
-        cookies[name] = decodeURIComponent(value);
+    .map((cookie) => cookie.trim())
+    .filter(Boolean)
+    .reduce<Record<string, string>>((acc, cookie) => {
+      const [rawName, ...rest] = cookie.split("=");
+      if (!rawName || rest.length === 0) {
+        return acc;
       }
-      return cookies;
+      acc[rawName] = decodeURIComponent(rest.join("="));
+      return acc;
     }, {});
+}
+
+export async function getServerSessionOrThrow(request: Request): Promise<Session> {
+  ensureSecret();
+  const cookies = parseCookies(request);
   const sessionCookie = cookies[CookieName];
 
   if (!sessionCookie) {
     throw new NotAuthenticatedError();
   }
+
   try {
     const { payload } = await jwtVerify(sessionCookie, encoder.encode(secret));
+
     return {
-      id: payload.id as string,
-      createdAt: payload.createdAt as number,
-      lastAccessed: payload.lastAccessed as number,
-      passwordChangeRequired: payload.passwordChangeRequired as boolean,
+      id: String(payload.id),
+      createdAt: Number(payload.createdAt),
+      lastAccessed: Number(payload.lastAccessed),
+      activeOrganizationId:
+        payload.activeOrganizationId === null || payload.activeOrganizationId === undefined
+          ? null
+          : Number(payload.activeOrganizationId),
+      mfaPending: Boolean(payload.mfaPending),
     };
-  } catch (error) {
+  } catch {
     throw new NotAuthenticatedError();
   }
 }
 
-export async function setServerSession(
-  response: Response,
-  session: Session
-): Promise<void> {
+export async function setServerSession(response: Response, session: Session): Promise<void> {
+  ensureSecret();
+
   const token = await new SignJWT({
     id: session.id,
     createdAt: session.createdAt,
     lastAccessed: session.lastAccessed,
-    passwordChangeRequired: session.passwordChangeRequired,
+    activeOrganizationId: session.activeOrganizationId,
+    mfaPending: session.mfaPending,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("1d")
+    .setExpirationTime("7d")
     .sign(encoder.encode(secret));
 
   const cookieValue = [
@@ -93,14 +100,13 @@ export async function setServerSession(
 }
 
 export function clearServerSession(response: Response) {
-  // Clear the session cookie by setting an expired date
   const cookieValue = [
     `${CookieName}=`,
     "HttpOnly",
     "Secure",
     "SameSite=Lax",
     "Path=/",
-    "Max-Age=0", // Expire immediately
+    "Max-Age=0",
   ].join("; ");
 
   response.headers.set("Set-Cookie", cookieValue);

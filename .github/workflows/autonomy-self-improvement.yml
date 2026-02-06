@@ -1,0 +1,36 @@
+name: autonomy-self-improvement
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  recommend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: node autonomy/scripts/proposeBacklogUpdates.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backlog-recommendations
+          path: autonomy-artifacts/backlog-recommendations.md
+      - name: Create PR with weekly recommendations
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: codex/autonomy-self-improvement-${{ github.run_id }}
+          title: "chore(autonomy): weekly backlog recommendations"
+          commit-message: "chore(autonomy): update weekly backlog recommendations"
+          body: |
+            Weekly autonomous backlog recommendation update.
+          add-paths: |
+            autonomy-artifacts/backlog-recommendations.md

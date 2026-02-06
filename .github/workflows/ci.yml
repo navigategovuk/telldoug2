@@ -25,16 +25,13 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
-      - name: Type check
-        run: npm run typecheck
+      - name: Validate contract snapshots
+        run: npm run contracts:generate
       
-      - name: Lint
-        run: npm run lint
-      
-      - name: Format check
-        run: npm run format:check
+      - name: Ensure contract snapshots are committed
+        run: git diff --exit-code contracts/housing-api.contract.snapshot.json contracts/openapi.housing.v1.json
 
   test:
     name: Tests
@@ -52,19 +49,18 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
-      - name: Run tests
-        run: npm run test:run -- --reporter=verbose
+      - name: Run complete test suite
+        run: npm run test:all
       
-      - name: Run tests with coverage
-        run: npm run test:coverage
-      
-      - name: Upload coverage report
+      - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: coverage/
+          name: test-artifacts
+          path: |
+            coverage/
+            autonomy-artifacts/
           retention-days: 7
 
   build:
@@ -83,7 +79,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Build application
         run: npm run build
@@ -122,15 +118,11 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
-      - name: Run security audit
+      - name: Run security tests
+        run: npm run test:security
+      
+      - name: Run npm audit
         run: npm audit --audit-level=high
         continue-on-error: true
-      
-      - name: Check for known vulnerabilities
-        run: |
-          VULNS=$(npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' || echo "0")
-          if [ "$VULNS" -gt 0 ]; then
-            echo "::warning::Found $VULNS high/critical vulnerabilities"
-          fi

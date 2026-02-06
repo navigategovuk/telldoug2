@@ -1,21 +1,9 @@
-import { z } from "zod";
-import { User } from "../../helpers/User";
+import superjson from "superjson";
+import { SessionContext } from "../../helpers/User";
 
-// no schema, just a simple GET request
-export const schema = z.object({});
+export type OutputType = SessionContext;
 
-export type OutputType =
-  | {
-      user: User;
-    }
-  | {
-      error: string;
-    };
-
-export const getSession = async (
-  body: z.infer<typeof schema> = {},
-  init?: RequestInit
-): Promise<OutputType> => {
+export async function getSession(init?: RequestInit): Promise<OutputType> {
   const result = await fetch(`/_api/auth/session`, {
     method: "GET",
     ...init,
@@ -23,6 +11,15 @@ export const getSession = async (
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
+    credentials: "include",
   });
-  return result.json();
-};
+
+  const text = await result.text();
+  if (!result.ok) {
+    const parsed = text ? superjson.parse<any>(text) : null;
+    throw new Error((typeof parsed?.error === "string" ? parsed.error : parsed?.error?.message) ?? "Not authenticated");
+  }
+
+  const parsedBody = superjson.parse<any>(text);
+  return (parsedBody && typeof parsedBody === "object" && "data" in parsedBody ? parsedBody.data : parsedBody) as OutputType;
+}

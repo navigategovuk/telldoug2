@@ -1,257 +1,163 @@
-// adapt this to your database schema
-import { db } from "../../helpers/db";
-import { sql } from "kysely";
-import { schema } from "./login_with_password_POST.schema";
-import { compare } from "bcryptjs";
 import { randomBytes } from "crypto";
-import {
-  setServerSession,
-  SessionExpirationSeconds,
-} from "../../helpers/getSetServerSession";
-import { User } from "../../helpers/User";
+import { sql } from "kysely";
+import { compare } from "bcryptjs";
+import { db } from "../../helpers/db";
+import { parseRequestBody, jsonResponse } from "../../helpers/http";
+import { schema } from "./login_with_password_POST.schema";
+import { handleEndpointError } from "../../helpers/endpointError";
+import { setServerSession, SessionExpirationSeconds } from "../../helpers/getSetServerSession";
+import { buildSessionContextForUser } from "../../helpers/sessionContextBuilder";
+import { writeAuditEvent } from "../../helpers/audit";
 
-// Configuration constants
-const RATE_LIMIT_CONFIG = {
+const RATE_LIMIT = {
   maxFailedAttempts: 5,
   lockoutWindowMinutes: 15,
   lockoutDurationMinutes: 15,
-  cleanupProbability: 0.1,
-} as const;
-
-// Helper function to safely convert union type to Date
-function safeToDate(
-  value: string | number | bigint | Date | null | undefined
-): Date | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  if (value instanceof Date) {
-    return value;
-  }
-
-  if (typeof value === "bigint") {
-    // Convert bigint to number (assuming it's a timestamp in milliseconds)
-    return new Date(Number(value));
-  }
-
-  return new Date(value);
-}
+};
 
 export async function handle(request: Request) {
   try {
-    const json = await request.json();
-    const { email, password } = schema.parse(json);
+    const input = schema.parse(await parseRequestBody(request));
+    const email = input.email.toLowerCase();
 
-    // Normalize email to lowercase for consistent handling
-    const normalizedEmail = email.toLowerCase();
     const now = new Date();
-    const windowStart = new Date(
-      now.getTime() - RATE_LIMIT_CONFIG.lockoutWindowMinutes * 60 * 1000
-    );
+    const windowStart = new Date(now.getTime() - RATE_LIMIT.lockoutWindowMinutes * 60 * 1000);
 
-    // Start transaction for atomic rate limiting and session creation
-    const result = await db.transaction().execute(async (trx) => {
-      // Use PostgreSQL advisory lock to serialize access per email
-      // This prevents concurrent processing of the same email address
-      // The lock is automatically released when the transaction ends
-      await sql`SELECT pg_advisory_xact_lock(hashtextextended(${normalizedEmail},0))`.execute(
-        trx
-      );
+    const auth = await db.transaction().execute(async (trx) => {
+      await sql`SELECT pg_advisory_xact_lock(hashtextextended(${email},0))`.execute(trx);
 
-      // Get rate limiting info efficiently - use COUNT and MAX instead of SELECT *
-      const rateLimitQuery = await trx
+      const recentFailures = await trx
         .selectFrom("loginAttempts")
         .select([
           trx.fn.countAll<number>().as("failedCount"),
-          trx.fn.max(trx.dynamic.ref("attemptedAt")).as("lastFailedAt"),
+          trx.fn.max("attemptedAt").as("lastFailedAt"),
         ])
-        .where("email", "=", normalizedEmail)
+        .where("email", "=", email)
         .where("success", "=", false)
         .where("attemptedAt", ">=", windowStart)
-        .where("attemptedAt", "is not", null) // Ensure null safety
         .executeTakeFirst();
 
-      const { failedCount = 0, lastFailedAt = null } = rateLimitQuery || {};
-      const safeLastFailedAt = safeToDate(lastFailedAt);
+      const failedCount = Number(recentFailures?.failedCount ?? 0);
+      const lastFailedAt = recentFailures?.lastFailedAt
+        ? new Date(recentFailures.lastFailedAt as unknown as string)
+        : null;
 
-      // Check if user is locked out
-      if (
-        rateLimitQuery &&
-        failedCount >= RATE_LIMIT_CONFIG.maxFailedAttempts &&
-        safeLastFailedAt
-      ) {
+      if (failedCount >= RATE_LIMIT.maxFailedAttempts && lastFailedAt) {
         const lockoutEnd = new Date(
-          safeLastFailedAt.getTime() +
-            RATE_LIMIT_CONFIG.lockoutDurationMinutes * 60 * 1000
+          lastFailedAt.getTime() + RATE_LIMIT.lockoutDurationMinutes * 60 * 1000
         );
-
         if (now < lockoutEnd) {
-          const remainingMinutes = Math.ceil(
-            (lockoutEnd.getTime() - now.getTime()) / (60 * 1000)
-          );
-          // DO NOT log blocked attempts to prevent extending lockout indefinitely
-          return {
-            type: "rate_limited" as const,
-            remainingMinutes,
-          };
+          const remainingMinutes = Math.ceil((lockoutEnd.getTime() - now.getTime()) / 60000);
+          return { type: "locked" as const, remainingMinutes };
         }
       }
 
-      // Find user by email (normalized)
-      const userResults = await trx
+      const userRow = await trx
         .selectFrom("users")
         .innerJoin("userPasswords", "users.id", "userPasswords.userId")
         .select([
-          "users.id",
-          "users.email",
-          "users.displayName",
-          "users.avatarUrl",
-          "users.role",
-          "userPasswords.passwordHash",
+          "users.id as userId",
+          "users.email as email",
+          "users.role as role",
+          "userPasswords.passwordHash as passwordHash",
         ])
-        .where(sql`LOWER(users.email)`, "=", normalizedEmail)
-        .limit(1)
-        .execute();
+        .where("users.email", "=", email)
+        .executeTakeFirst();
 
-      if (userResults.length === 0) {
-        // Log failed attempt for non-existent user
+      if (!userRow) {
         await trx
           .insertInto("loginAttempts")
-          .values({
-            email: normalizedEmail,
-            attemptedAt: now,
-            success: false,
-          })
+          .values({ email, attemptedAt: now, success: false })
           .execute();
-
-        return {
-          type: "auth_failed" as const,
-        };
+        return { type: "failed" as const };
       }
 
-      const user = userResults[0];
-
-      // Verify password
-      const passwordValid = await compare(password, user.passwordHash);
-      if (!passwordValid) {
-        // Log failed attempt for invalid password
+      const ok = await compare(input.password, userRow.passwordHash);
+      if (!ok) {
         await trx
           .insertInto("loginAttempts")
-          .values({
-            email: normalizedEmail,
-            attemptedAt: now,
-            success: false,
-          })
+          .values({ email, attemptedAt: now, success: false })
           .execute();
-
-        return {
-          type: "auth_failed" as const,
-        };
+        return { type: "failed" as const };
       }
 
-      // Password is valid - log successful attempt
       await trx
         .insertInto("loginAttempts")
-        .values({
-          email: normalizedEmail,
-          attemptedAt: now,
-          success: true,
-        })
+        .values({ email, attemptedAt: now, success: true })
         .execute();
 
-      // Create session inside the same transaction to ensure atomicity
       const sessionId = randomBytes(32).toString("hex");
-      const expiresAt = new Date(
-        now.getTime() + SessionExpirationSeconds * 1000
-      );
-
       await trx
         .insertInto("sessions")
         .values({
           id: sessionId,
-          userId: user.id,
+          userId: userRow.userId,
           createdAt: now,
           lastAccessed: now,
-          expiresAt: expiresAt,
+          expiresAt: new Date(now.getTime() + SessionExpirationSeconds * 1000),
         })
-        .execute();
-
-      // Reset failed attempts counter by deleting previous failed attempts
-      // This preserves audit trail of successful logins
-      await trx
-        .deleteFrom("loginAttempts")
-        .where("email", "=", normalizedEmail)
-        .where("success", "=", false)
         .execute();
 
       return {
         type: "success" as const,
-        user,
         sessionId,
-        sessionCreatedAt: now,
+        userId: userRow.userId,
+        userRole: userRow.role,
       };
     });
 
-    // Clean up old login attempts periodically
-    // Run cleanup outside transaction to prevent extending transaction time and potential deadlocks
-    if (Math.random() < RATE_LIMIT_CONFIG.cleanupProbability) {
-      const cleanupBefore = new Date(
-        now.getTime() - RATE_LIMIT_CONFIG.lockoutWindowMinutes * 60 * 1000
-      );
-      try {
-        const deleteResult = await db
-          .deleteFrom("loginAttempts")
-          .where("attemptedAt", "<", cleanupBefore)
-          .where("attemptedAt", "is not", null)
-          .executeTakeFirst();
-      } catch {
-        // Don't fail the login if cleanup fails
-      }
-    }
-
-    // Handle different transaction results
-    if (result.type === "rate_limited") {
-      return Response.json(
-        {
-          message: `Too many failed login attempts. Account locked for ${result.remainingMinutes} more minutes.`,
-        },
-        { status: 429 }
+    if (auth.type === "locked") {
+      return jsonResponse(
+        { message: `Too many attempts. Try again in ${auth.remainingMinutes} minutes.` },
+        429
       );
     }
 
-    if (result.type === "auth_failed") {
-      return Response.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
-      );
+    if (auth.type === "failed") {
+      return jsonResponse({ message: "Invalid email or password" }, 401);
     }
 
-    // Success case - session was already created in transaction
-    const user = result.user;
+    const context = await buildSessionContextForUser({ userId: auth.userId });
+    const mfaRequired =
+      context.activeMembershipRole === "caseworker" ||
+      context.activeMembershipRole === "platform_admin";
 
-    // Create response with user data (excluding sensitive information)
-    const userData: User = {
-      id: user.id,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-      displayName: user.displayName,
-      role: user.role,
-    };
+    const response = jsonResponse(
+      mfaRequired
+        ? {
+            mfaRequired: true,
+            message: "MFA code required for caseworker or admin sign-in",
+          }
+        : {
+            mfaRequired: false,
+            context: {
+              user: context.user,
+              memberships: context.memberships,
+              activeOrganizationId: context.activeOrganizationId,
+              permissions: context.permissions,
+            },
+          }
+    );
 
-    const response = Response.json({
-      user: userData,
+    await setServerSession(response, {
+      id: auth.sessionId,
+      createdAt: now.getTime(),
+      lastAccessed: now.getTime(),
+      activeOrganizationId: context.activeOrganizationId,
+      mfaPending: mfaRequired,
     });
 
-    // Set session cookie
-    await setServerSession(response, {
-      id: result.sessionId,
-      createdAt: result.sessionCreatedAt.getTime(),
-      lastAccessed: result.sessionCreatedAt.getTime(),
+    await writeAuditEvent({
+      organizationId: context.activeOrganizationId,
+      actorUserId: auth.userId,
+      eventType: "auth.login",
+      entityType: "user",
+      entityId: String(auth.userId),
+      metadata: { mfaRequired },
     });
 
     return response;
   } catch (error) {
-    return Response.json({ message: "Authentication failed" }, { status: 400 });
+    return handleEndpointError(error);
   }
 }

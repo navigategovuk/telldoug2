@@ -1,35 +1,39 @@
 import { z } from "zod";
-import { User } from "../../helpers/User";
+import superjson from "superjson";
+import { SessionContext } from "../../helpers/User";
 
 export const schema = z.object({
-  email: z.string().email("Email is required"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email(),
+  password: z.string().min(1),
 });
 
 export type OutputType = {
-  user: User;
+  mfaRequired: boolean;
+  message?: string;
+  context?: SessionContext;
 };
 
-export const postLogin = async (
+export async function postLogin(
   body: z.infer<typeof schema>,
   init?: RequestInit
-): Promise<OutputType> => {
-  const validatedInput = schema.parse(body);
+): Promise<OutputType> {
   const result = await fetch(`/_api/auth/login_with_password`, {
     method: "POST",
-    body: JSON.stringify(validatedInput),
+    body: superjson.stringify(schema.parse(body)),
     ...init,
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
-    credentials: "include", // Important for cookies to be sent and received
+    credentials: "include",
   });
 
+  const text = await result.text();
   if (!result.ok) {
-    const errorData = await result.json();
-    throw new Error(errorData.message || "Login failed");
+    const parsed = text ? superjson.parse<any>(text) : null;
+    throw new Error((typeof parsed?.error === "string" ? parsed.error : parsed?.error?.message) ?? parsed?.message ?? "Login failed");
   }
 
-  return result.json();
-};
+  const parsedBody = superjson.parse<any>(text);
+  return (parsedBody && typeof parsedBody === "object" && "data" in parsedBody ? parsedBody.data : parsedBody) as OutputType;
+}

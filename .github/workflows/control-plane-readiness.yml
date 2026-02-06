@@ -1,0 +1,38 @@
+name: control-plane-readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Environment to validate"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - name: Verify control-plane readiness
+        env:
+          AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          RELEASE_MANIFEST_SIGNING_KEY: ${{ secrets.RELEASE_MANIFEST_SIGNING_KEY }}
+          RELEASE_MARKER_TOKEN: ${{ secrets.RELEASE_MARKER_TOKEN }}
+          RELEASE_MARKER_ORG_ID: ${{ vars.RELEASE_MARKER_ORG_ID }}
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+          SLO_ERROR_ALARM: ${{ vars.SLO_ERROR_ALARM }}
+          SLO_P95_ALARM: ${{ vars.SLO_P95_ALARM }}
+          RELEASE_VERSION: ${{ vars.RELEASE_VERSION }}
+          RELEASE_MARKER_ENDPOINT: ${{ vars.RELEASE_MARKER_ENDPOINT }}
+        run: node autonomy/scripts/verifyControlPlaneReadiness.mjs

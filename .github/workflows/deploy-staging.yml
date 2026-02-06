@@ -1,0 +1,52 @@
+name: deploy-staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Container tag/digest to deploy"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-2
+      - name: Deploy to ECS (staging)
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+        run: |
+          test -n "$ECS_CLUSTER"
+          test -n "$ECS_SERVICE"
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE"
+      - name: Post release marker
+        if: ${{ vars.RELEASE_MARKER_ENDPOINT != '' }}
+        env:
+          RELEASE_MARKER_ENDPOINT: ${{ vars.RELEASE_MARKER_ENDPOINT }}
+          RELEASE_MARKER_TOKEN: ${{ secrets.RELEASE_MARKER_TOKEN }}
+          RELEASE_MARKER_ORG_ID: ${{ vars.RELEASE_MARKER_ORG_ID }}
+          RELEASE_ENVIRONMENT: staging
+          RELEASE_VERSION: ${{ vars.RELEASE_VERSION }}
+          RELEASE_COMMIT_SHA: ${{ github.sha }}
+          RELEASE_IMAGE_DIGEST: ${{ github.event.inputs.image_tag }}
+          RELEASE_MIGRATION_VERSION: ${{ vars.RELEASE_MIGRATION_VERSION }}
+        run: node autonomy/scripts/postReleaseMarker.mjs

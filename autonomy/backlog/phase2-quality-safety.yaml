@@ -1,0 +1,47 @@
+id: phase2-quality-safety
+title: Quality and safety gate hardening
+priority: high
+risk: medium
+owner: autonomous_runner
+
+tasks:
+  - id: unit_moderation_policy_tests
+    title: Add risk scoring and policy resolver unit tests
+    risk: low
+    acceptance_checks:
+      - moderation_unit_tests_green
+      - policy_resolver_tests_green
+    rollback:
+      - disable_flaky_unit_tests
+      - restore_previous_unit_config
+
+  - id: integration_tenant_isolation
+    title: Add integration tests for tenant isolation and RBAC
+    risk: medium
+    acceptance_checks:
+      - org_a_cannot_access_org_b_resources
+      - caseworker_permissions_enforced
+    rollback:
+      - revert_integration_test_introductions
+      - restore_previous_ci_verify_job
+
+  - id: e2e_applicant_caseworker_flows
+    title: Add end-to-end tests for applicant submit and caseworker review
+    risk: medium
+    acceptance_checks:
+      - applicant_submit_flow_green
+      - caseworker_review_flow_green
+      - moderation_override_flow_green
+    rollback:
+      - disable_new_e2e_suite
+      - preserve_existing_release_gates
+
+  - id: security_baseline
+    title: Add auth lockout and malicious upload test scenarios
+    risk: high
+    acceptance_checks:
+      - lockout_checks_green
+      - upload_rejection_checks_green
+    rollback:
+      - revert_security_suite_additions
+      - re-enable_previous_security_baseline

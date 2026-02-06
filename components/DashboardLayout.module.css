@@ -1,0 +1,220 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.sidebar {
+  width: 16rem;
+  background-color: var(--sidebar);
+  border-right: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: var(--z-nav);
+}
+
+.logoContainer {
+  padding: var(--spacing-6);
+  border-bottom: 2px solid var(--border);
+}
+
+.logo {
+  display: block;
+  text-decoration: none;
+}
+
+.logoImage {
+  height: 2rem;
+  width: auto;
+  display: block;
+}
+
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.nav {
+  flex: 1;
+  padding: var(--spacing-6) 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-6);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.navItem:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+
+.active {
+  color: var(--foreground);
+  background-color: var(--muted);
+  border-left-color: var(--primary);
+}
+
+.journeyProgressWrapper {
+  padding: 0 var(--spacing-4) var(--spacing-4);
+  margin-top: auto;
+}
+
+.userSection {
+  padding: var(--spacing-4);
+  border-top: 2px solid var(--border);
+  background-color: var(--background);
+}
+
+.userCompactRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  overflow: hidden;
+  flex: 1;
+}
+
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--foreground);
+  flex-shrink: 0;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  flex: 1;
+}
+
+.userName {
+  font-weight: 700;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.userRole {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.tierBadge {
+  font-size: 0.5rem;
+  padding: 0 var(--spacing-1);
+  height: 1rem;
+  width: fit-content;
+  border-width: 1px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+}
+
+.upgradeButton {
+  font-size: 0.625rem;
+  height: 1.5rem;
+  padding: 0 var(--spacing-2);
+  min-width: 0;
+}
+
+.logoutButton {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--muted-foreground);
+}
+
+.logoutButton:hover {
+  color: var(--error);
+  background-color: transparent;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content {
+  padding: var(--spacing-8);
+  flex: 1;
+  animation: fadeInUp 0.2s ease-out forwards;
+}
+
+@media (max-width: 767px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .sidebarContent {
+    display: none;
+  }
+
+  .content {
+    padding-bottom: 6rem; /* Account for MobileBottomNav (~60px + buffer) */
+  }
+
+  .nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0;
+  }
+}

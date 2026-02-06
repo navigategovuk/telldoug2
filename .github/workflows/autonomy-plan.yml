@@ -1,0 +1,38 @@
+name: autonomy-plan
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "autonomy/**"
+      - "contracts/**"
+      - "server.ts"
+      - "endpoints/**"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run autonomy:validate-backlog
+      - run: npm run contracts:generate
+      - name: Ensure contract snapshots are committed
+        run: |
+          git diff --exit-code contracts/housing-api.contract.snapshot.json contracts/openapi.housing.v1.json
+      - run: npm run build
+      - run: npm run test:all
+      - name: Validate autonomy policy and backlog
+        run: |
+          test -f autonomy/policy.yaml
+          ls autonomy/backlog/*.yaml
+          test -f autonomy/backlog/schema.v2.json
+          test -f autonomy/runbook.md
+      - name: Validate frozen contract artifacts
+        run: |
+          test -f contracts/housing-api.contract.snapshot.json
+          test -f contracts/openapi.housing.v1.json

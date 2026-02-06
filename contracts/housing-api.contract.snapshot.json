@@ -1,0 +1,512 @@
+{
+  "generatedAt": "2026-02-06T09:34:43.718Z",
+  "responseEnvelope": {
+    "success": {
+      "data": "any",
+      "correlationId": "string"
+    },
+    "error": {
+      "error": {
+        "code": "string",
+        "message": "string"
+      },
+      "correlationId": "string"
+    }
+  },
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/_api/ai/assistant/stream",
+      "handler": "endpoints/ai/assistant/stream_POST.ts",
+      "clientSchema": "endpoints/ai/assistant/stream_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/ai/documents/extract",
+      "handler": "endpoints/ai/documents/extract_POST.ts",
+      "clientSchema": "endpoints/ai/documents/extract_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/ai/eligibility/precheck",
+      "handler": "endpoints/ai/eligibility/precheck_POST.ts",
+      "clientSchema": "endpoints/ai/eligibility/precheck_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/applicant/profile/update",
+      "handler": "endpoints/applicant/profile/update_POST.ts",
+      "clientSchema": "endpoints/applicant/profile/update_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/applicant/profile",
+      "handler": "endpoints/applicant/profile_GET.ts",
+      "clientSchema": "endpoints/applicant/profile_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/applications/create",
+      "handler": "endpoints/applications/create_POST.ts",
+      "clientSchema": "endpoints/applications/create_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/applications/current",
+      "handler": "endpoints/applications/current_GET.ts",
+      "clientSchema": "endpoints/applications/current_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/applications/submit",
+      "handler": "endpoints/applications/submit_POST.ts",
+      "clientSchema": "endpoints/applications/submit_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/applications/update",
+      "handler": "endpoints/applications/update_POST.ts",
+      "clientSchema": "endpoints/applications/update_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/audit/events",
+      "handler": "endpoints/audit/events_GET.ts",
+      "clientSchema": "endpoints/audit/events_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/audit/release-marker",
+      "handler": "endpoints/audit/release-marker_POST.ts",
+      "clientSchema": "endpoints/audit/release-marker_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/auth/login_with_password",
+      "handler": "endpoints/auth/login_with_password_POST.ts",
+      "clientSchema": "endpoints/auth/login_with_password_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/auth/logout",
+      "handler": "endpoints/auth/logout_POST.ts",
+      "clientSchema": "endpoints/auth/logout_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/auth/mfa/verify",
+      "handler": "endpoints/auth/mfa/verify_POST.ts",
+      "clientSchema": "endpoints/auth/mfa/verify_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/auth/register",
+      "handler": "endpoints/auth/register_POST.ts",
+      "clientSchema": "endpoints/auth/register_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/auth/session",
+      "handler": "endpoints/auth/session_GET.ts",
+      "clientSchema": "endpoints/auth/session_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/cases/add-note",
+      "handler": "endpoints/cases/add-note_POST.ts",
+      "clientSchema": "endpoints/cases/add-note_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/cases/assign",
+      "handler": "endpoints/cases/assign_POST.ts",
+      "clientSchema": "endpoints/cases/assign_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/cases/detail",
+      "handler": "endpoints/cases/detail_GET.ts",
+      "clientSchema": "endpoints/cases/detail_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/cases/queue",
+      "handler": "endpoints/cases/queue_GET.ts",
+      "clientSchema": "endpoints/cases/queue_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/cases/update-status",
+      "handler": "endpoints/cases/update-status_POST.ts",
+      "clientSchema": "endpoints/cases/update-status_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/documents/attach",
+      "handler": "endpoints/documents/attach_POST.ts",
+      "clientSchema": "endpoints/documents/attach_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/documents/create-upload-url",
+      "handler": "endpoints/documents/create-upload-url_POST.ts",
+      "clientSchema": "endpoints/documents/create-upload-url_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/documents/list",
+      "handler": "endpoints/documents/list_GET.ts",
+      "clientSchema": "endpoints/documents/list_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/documents/request-recheck",
+      "handler": "endpoints/documents/request-recheck_POST.ts",
+      "clientSchema": "endpoints/documents/request-recheck_POST.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/messages/send",
+      "handler": "endpoints/messages/send_POST.ts",
+      "clientSchema": "endpoints/messages/send_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/messages/thread",
+      "handler": "endpoints/messages/thread_GET.ts",
+      "clientSchema": "endpoints/messages/thread_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/metrics/operational",
+      "handler": "endpoints/metrics/operational_GET.ts",
+      "clientSchema": "endpoints/metrics/operational_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/metrics/slo",
+      "handler": "endpoints/metrics/slo_GET.ts",
+      "clientSchema": "endpoints/metrics/slo_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/moderation/decision",
+      "handler": "endpoints/moderation/decision_POST.ts",
+      "clientSchema": "endpoints/moderation/decision_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/moderation/policy/current",
+      "handler": "endpoints/moderation/policy/current_GET.ts",
+      "clientSchema": "endpoints/moderation/policy/current_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/moderation/policy/publish",
+      "handler": "endpoints/moderation/policy/publish_POST.ts",
+      "clientSchema": "endpoints/moderation/policy/publish_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/moderation/queue",
+      "handler": "endpoints/moderation/queue_GET.ts",
+      "clientSchema": "endpoints/moderation/queue_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/orgs/mine",
+      "handler": "endpoints/orgs/mine_GET.ts",
+      "clientSchema": "endpoints/orgs/mine_GET.schema.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/_api/orgs/switch",
+      "handler": "endpoints/orgs/switch_POST.ts",
+      "clientSchema": "endpoints/orgs/switch_POST.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/system/health/dependencies",
+      "handler": "endpoints/system/health/dependencies_GET.ts",
+      "clientSchema": "endpoints/system/health/dependencies_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/system/health/liveness",
+      "handler": "endpoints/system/health/liveness_GET.ts",
+      "clientSchema": "endpoints/system/health/liveness_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/system/health/readiness",
+      "handler": "endpoints/system/health/readiness_GET.ts",
+      "clientSchema": "endpoints/system/health/readiness_GET.schema.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/_api/system/release/version",
+      "handler": "endpoints/system/release/version_GET.ts",
+      "clientSchema": "endpoints/system/release/version_GET.schema.ts"
+    }
+  ],
+  "groups": {
+    "ai": [
+      {
+        "method": "POST",
+        "path": "/_api/ai/assistant/stream",
+        "handler": "endpoints/ai/assistant/stream_POST.ts",
+        "clientSchema": "endpoints/ai/assistant/stream_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/ai/documents/extract",
+        "handler": "endpoints/ai/documents/extract_POST.ts",
+        "clientSchema": "endpoints/ai/documents/extract_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/ai/eligibility/precheck",
+        "handler": "endpoints/ai/eligibility/precheck_POST.ts",
+        "clientSchema": "endpoints/ai/eligibility/precheck_POST.schema.ts"
+      }
+    ],
+    "applicant": [
+      {
+        "method": "POST",
+        "path": "/_api/applicant/profile/update",
+        "handler": "endpoints/applicant/profile/update_POST.ts",
+        "clientSchema": "endpoints/applicant/profile/update_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/applicant/profile",
+        "handler": "endpoints/applicant/profile_GET.ts",
+        "clientSchema": "endpoints/applicant/profile_GET.schema.ts"
+      }
+    ],
+    "applications": [
+      {
+        "method": "POST",
+        "path": "/_api/applications/create",
+        "handler": "endpoints/applications/create_POST.ts",
+        "clientSchema": "endpoints/applications/create_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/applications/current",
+        "handler": "endpoints/applications/current_GET.ts",
+        "clientSchema": "endpoints/applications/current_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/applications/submit",
+        "handler": "endpoints/applications/submit_POST.ts",
+        "clientSchema": "endpoints/applications/submit_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/applications/update",
+        "handler": "endpoints/applications/update_POST.ts",
+        "clientSchema": "endpoints/applications/update_POST.schema.ts"
+      }
+    ],
+    "audit": [
+      {
+        "method": "GET",
+        "path": "/_api/audit/events",
+        "handler": "endpoints/audit/events_GET.ts",
+        "clientSchema": "endpoints/audit/events_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/audit/release-marker",
+        "handler": "endpoints/audit/release-marker_POST.ts",
+        "clientSchema": "endpoints/audit/release-marker_POST.schema.ts"
+      }
+    ],
+    "auth": [
+      {
+        "method": "POST",
+        "path": "/_api/auth/login_with_password",
+        "handler": "endpoints/auth/login_with_password_POST.ts",
+        "clientSchema": "endpoints/auth/login_with_password_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/auth/logout",
+        "handler": "endpoints/auth/logout_POST.ts",
+        "clientSchema": "endpoints/auth/logout_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/auth/mfa/verify",
+        "handler": "endpoints/auth/mfa/verify_POST.ts",
+        "clientSchema": "endpoints/auth/mfa/verify_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/auth/register",
+        "handler": "endpoints/auth/register_POST.ts",
+        "clientSchema": "endpoints/auth/register_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/auth/session",
+        "handler": "endpoints/auth/session_GET.ts",
+        "clientSchema": "endpoints/auth/session_GET.schema.ts"
+      }
+    ],
+    "cases": [
+      {
+        "method": "POST",
+        "path": "/_api/cases/add-note",
+        "handler": "endpoints/cases/add-note_POST.ts",
+        "clientSchema": "endpoints/cases/add-note_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/cases/assign",
+        "handler": "endpoints/cases/assign_POST.ts",
+        "clientSchema": "endpoints/cases/assign_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/cases/detail",
+        "handler": "endpoints/cases/detail_GET.ts",
+        "clientSchema": "endpoints/cases/detail_GET.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/cases/queue",
+        "handler": "endpoints/cases/queue_GET.ts",
+        "clientSchema": "endpoints/cases/queue_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/cases/update-status",
+        "handler": "endpoints/cases/update-status_POST.ts",
+        "clientSchema": "endpoints/cases/update-status_POST.schema.ts"
+      }
+    ],
+    "documents": [
+      {
+        "method": "POST",
+        "path": "/_api/documents/attach",
+        "handler": "endpoints/documents/attach_POST.ts",
+        "clientSchema": "endpoints/documents/attach_POST.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/documents/create-upload-url",
+        "handler": "endpoints/documents/create-upload-url_POST.ts",
+        "clientSchema": "endpoints/documents/create-upload-url_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/documents/list",
+        "handler": "endpoints/documents/list_GET.ts",
+        "clientSchema": "endpoints/documents/list_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/documents/request-recheck",
+        "handler": "endpoints/documents/request-recheck_POST.ts",
+        "clientSchema": "endpoints/documents/request-recheck_POST.schema.ts"
+      }
+    ],
+    "messages": [
+      {
+        "method": "POST",
+        "path": "/_api/messages/send",
+        "handler": "endpoints/messages/send_POST.ts",
+        "clientSchema": "endpoints/messages/send_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/messages/thread",
+        "handler": "endpoints/messages/thread_GET.ts",
+        "clientSchema": "endpoints/messages/thread_GET.schema.ts"
+      }
+    ],
+    "metrics": [
+      {
+        "method": "GET",
+        "path": "/_api/metrics/operational",
+        "handler": "endpoints/metrics/operational_GET.ts",
+        "clientSchema": "endpoints/metrics/operational_GET.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/metrics/slo",
+        "handler": "endpoints/metrics/slo_GET.ts",
+        "clientSchema": "endpoints/metrics/slo_GET.schema.ts"
+      }
+    ],
+    "moderation": [
+      {
+        "method": "POST",
+        "path": "/_api/moderation/decision",
+        "handler": "endpoints/moderation/decision_POST.ts",
+        "clientSchema": "endpoints/moderation/decision_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/moderation/policy/current",
+        "handler": "endpoints/moderation/policy/current_GET.ts",
+        "clientSchema": "endpoints/moderation/policy/current_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/moderation/policy/publish",
+        "handler": "endpoints/moderation/policy/publish_POST.ts",
+        "clientSchema": "endpoints/moderation/policy/publish_POST.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/moderation/queue",
+        "handler": "endpoints/moderation/queue_GET.ts",
+        "clientSchema": "endpoints/moderation/queue_GET.schema.ts"
+      }
+    ],
+    "orgs": [
+      {
+        "method": "GET",
+        "path": "/_api/orgs/mine",
+        "handler": "endpoints/orgs/mine_GET.ts",
+        "clientSchema": "endpoints/orgs/mine_GET.schema.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/_api/orgs/switch",
+        "handler": "endpoints/orgs/switch_POST.ts",
+        "clientSchema": "endpoints/orgs/switch_POST.schema.ts"
+      }
+    ],
+    "system": [
+      {
+        "method": "GET",
+        "path": "/_api/system/health/dependencies",
+        "handler": "endpoints/system/health/dependencies_GET.ts",
+        "clientSchema": "endpoints/system/health/dependencies_GET.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/system/health/liveness",
+        "handler": "endpoints/system/health/liveness_GET.ts",
+        "clientSchema": "endpoints/system/health/liveness_GET.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/system/health/readiness",
+        "handler": "endpoints/system/health/readiness_GET.ts",
+        "clientSchema": "endpoints/system/health/readiness_GET.schema.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/_api/system/release/version",
+        "handler": "endpoints/system/release/version_GET.ts",
+        "clientSchema": "endpoints/system/release/version_GET.schema.ts"
+      }
+    ]
+  }
+}

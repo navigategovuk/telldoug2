@@ -1,0 +1,62 @@
+name: autonomy-verify
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "App.tsx"
+      - "server.ts"
+      - "pages/**"
+      - "components/**"
+      - "helpers/**"
+      - "endpoints/**"
+      - "contracts/**"
+      - "autonomy/**"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run autonomy:validate-backlog
+      - run: npm run contracts:generate
+      - name: Ensure contract snapshots are committed
+        run: |
+          git diff --exit-code contracts/housing-api.contract.snapshot.json contracts/openapi.housing.v1.json
+      - run: npm run build
+      - name: Run required quality gates
+        run: |
+          npm run test:unit
+          npm run test:integration
+          npm run test:e2e
+          npm run test:security
+      - name: Verify route handlers and schema wrappers exist
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const source = fs.readFileSync("server.ts", "utf8");
+          const routeRegex = /importPath:\s*"([^"]+)"/g;
+          let match;
+          const missing = [];
+          while ((match = routeRegex.exec(source)) !== null) {
+            const importPath = match[1];
+            const handlerPath = importPath.replace(/^\.\//, "").replace(/\.js$/, ".ts");
+            if (!fs.existsSync(handlerPath)) {
+              missing.push(handlerPath);
+            }
+            const schemaPath = handlerPath.replace(/\.ts$/, ".schema.ts");
+            if (!fs.existsSync(schemaPath)) {
+              missing.push(schemaPath);
+            }
+          }
+          if (missing.length > 0) {
+            console.error("Missing route files:");
+            for (const item of missing) console.error(` - ${item}`);
+            process.exit(1);
+          }
+          NODE

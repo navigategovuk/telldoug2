@@ -1,0 +1,14 @@
+# Default reviewers for this user-owned repository
+* @navigategovuk
+
+# Security and autonomy workflows
+/.github/workflows/* @navigategovuk
+/autonomy/* @navigategovuk
+/contracts/* @navigategovuk
+
+# Infrastructure
+/infra/* @navigategovuk
+
+# Optional collaborator review
+/components/* @ccoxuk
+/pages/* @ccoxuk

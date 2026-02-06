@@ -1,0 +1,36 @@
+id: phase5-guardrailed-operations
+title: Guardrailed operational autonomy
+priority: high
+risk: medium
+owner: autonomous_runner
+
+tasks:
+  - id: moderation_triage_recommendations
+    title: Produce moderation triage recommendations without auto-finalizing high risk
+    risk: medium
+    acceptance_checks:
+      - triage_artifact_generated
+      - no_high_risk_auto_finalize_path
+    rollback:
+      - disable_triage_recommendation_job
+      - revert_to_manual_triage_only
+
+  - id: assistant_quality_monitor
+    title: Monitor citation completeness and refusal policy compliance
+    risk: low
+    acceptance_checks:
+      - quality_monitor_artifact_generated
+      - compliance_fields_present
+    rollback:
+      - disable_quality_monitor_job
+      - remove_nonessential_quality_metrics
+
+  - id: weekly_self_improvement
+    title: Generate weekly backlog update recommendations
+    risk: low
+    acceptance_checks:
+      - backlog_recommendations_report_generated
+      - weekly_schedule_enabled
+    rollback:
+      - disable_weekly_self_improvement_job
+      - preserve_existing_backlog_state

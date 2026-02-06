@@ -1,0 +1,36 @@
+id: phase3-autonomous-control-loop
+title: Autonomous development control loop
+priority: high
+risk: medium
+owner: autonomous_runner
+
+tasks:
+  - id: backlog_schema_v2
+    title: Enforce backlog schema v2 and validation
+    risk: low
+    acceptance_checks:
+      - backlog_schema_v2_applied
+      - backlog_validation_passes
+    rollback:
+      - restore_legacy_backlog_schema
+      - disable_schema_enforcement_step
+
+  - id: autonomy_runner_workflow
+    title: Run plan implement verify in a single autonomous workflow
+    risk: medium
+    acceptance_checks:
+      - workflow_generates_deterministic_artifacts
+      - workflow_produces_risk_report
+    rollback:
+      - disable_autonomy_runner_workflow
+      - keep_manual_autonomy_jobs
+
+  - id: human_gate_enforcement
+    title: Require human gate for high-risk classes
+    risk: high
+    acceptance_checks:
+      - high_risk_job_blocks_without_approval
+      - low_risk_job_bypasses_gate
+    rollback:
+      - remove_high_risk_gate_job
+      - revert_to_manual_merge_policy

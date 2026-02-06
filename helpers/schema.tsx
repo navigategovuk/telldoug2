@@ -1,624 +1,439 @@
 /**
- * TellDoug Unified Database Schema
- * Merged from Career Management OS and Helm Resume System
- * Generated: 2026-01-26
+ * Domain schema for the AI-moderated housing portal.
+ * Note: with CamelCasePlugin enabled in Kysely, SQL tables/columns should remain snake_case,
+ * while TypeScript access uses camelCase.
  */
 
 import type { ColumnType } from "kysely";
-
-// ============================================================================
-// CMOS ENUMS - Career Management
-// ============================================================================
-
-export type AchievementCategory = "award" | "certification" | "milestone" | "promotion" | "recognition";
-
-export type ContentType = "article" | "media_mention" | "post" | "publication" | "speaking";
-
-export type EntityType = "event" | "institution" | "job" | "person" | "project" | "skill";
-
-export type EventType = "conference" | "interview" | "meeting" | "networking" | "other" | "presentation" | "workshop";
-
-export type FeedbackType = "360_feedback" | "career_coach" | "one_on_one" | "peer_feedback" | "performance_review";
-
-export type GoalStatus = "abandoned" | "completed" | "in_progress" | "not_started";
-
-export type GoalType = "career" | "financial" | "relationship" | "skill";
-
-export type InstitutionType = "bootcamp" | "college" | "organization" | "other" | "school" | "university";
-
-export type InteractionType = "call" | "coffee" | "email" | "meeting";
-
-export type LearningStatus = "abandoned" | "completed" | "in_progress" | "planned";
-
-export type LearningType = "certification" | "conference" | "course" | "degree" | "workshop";
-
-export type ProjectStatus = "cancelled" | "completed" | "in_progress" | "on_hold" | "planning";
-
-export type SkillProficiency = "advanced" | "beginner" | "expert" | "intermediate";
-
-// ============================================================================
-// HELM ENUMS - Resume Management
-// ============================================================================
-
-export type ImportStatus = "committed" | "mapped" | "merged" | "pending" | "skipped";
-
-export type UserRole = "admin" | "owner" | "user";
-
-// ============================================================================
-// UTILITY TYPES
-// ============================================================================
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export type Numeric = ColumnType<string, number | string, number | string>;
 
-export type Timestamp = ColumnType<Date, Date | string, Date | string>;
-
 export type Json = JsonValue;
-
 export type JsonArray = JsonValue[];
-
-export type JsonObject = {
-  [x: string]: JsonValue | undefined;
-};
-
+export type JsonObject = { [x: string]: JsonValue | undefined };
 export type JsonPrimitive = boolean | number | string | null;
-
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
-// ============================================================================
-// HELM TABLES - Authentication & Workspace
-// ============================================================================
+export type UserRole = "platform_admin" | "caseworker" | "applicant";
+export type OrganizationStatus = "active" | "suspended";
+export type MembershipRole = "platform_admin" | "caseworker" | "applicant";
+
+export type ApplicationStatus =
+  | "draft"
+  | "submitted"
+  | "in_review"
+  | "needs_info"
+  | "eligible"
+  | "ineligible"
+  | "allocated"
+  | "closed";
+
+export type ModerationDecision = "approved" | "pending_review" | "blocked";
+export type ModerationTargetType =
+  | "application_field"
+  | "message"
+  | "document"
+  | "assistant_prompt";
+
+export type CasePriority = "low" | "medium" | "high" | "urgent";
+export type MessageVisibility = "hidden" | "visible";
+export type DocumentVerificationStatus =
+  | "pending"
+  | "verified"
+  | "rejected"
+  | "needs_recheck";
+
+export interface Organizations {
+  id: Generated<number>;
+  name: string;
+  ukRegion: string;
+  status: Generated<OrganizationStatus>;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface OrganizationMemberships {
+  id: Generated<number>;
+  organizationId: number;
+  userId: number;
+  role: MembershipRole;
+  isDefault: Generated<boolean>;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
 
 export interface Users {
-  avatarUrl: string | null;
-  createdAt: Generated<Timestamp | null>;
-  displayName: string;
-  email: string;
   id: Generated<number>;
+  email: string;
+  displayName: string;
+  avatarUrl: string | null;
   role: Generated<UserRole>;
-  updatedAt: Generated<Timestamp | null>;
+  defaultOrganizationId: number | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface UserPasswords {
   id: Generated<number>;
-  passwordHash: string;
   userId: number;
+  passwordHash: string;
+  createdAt: Generated<Timestamp>;
 }
 
 export interface Sessions {
-  createdAt: Generated<Timestamp | null>;
-  expiresAt: Timestamp;
   id: string;
-  lastAccessed: Generated<Timestamp | null>;
   userId: number;
-}
-
-export interface OauthAccounts {
-  createdAt: Generated<Timestamp | null>;
-  id: Generated<number>;
-  provider: string;
-  providerEmail: string | null;
-  providerUserId: string;
-  updatedAt: Generated<Timestamp | null>;
-  userId: number;
-}
-
-export interface OauthStates {
-  codeVerifier: string;
-  createdAt: Generated<Timestamp | null>;
   expiresAt: Timestamp;
-  id: Generated<number>;
-  provider: string;
-  redirectUrl: string;
-  state: string;
+  createdAt: Generated<Timestamp>;
+  lastAccessed: Generated<Timestamp>;
 }
 
 export interface LoginAttempts {
-  attemptedAt: Generated<Timestamp | null>;
-  email: string;
   id: Generated<number>;
+  email: string;
+  attemptedAt: Generated<Timestamp>;
   success: Generated<boolean>;
 }
 
-export interface Workspaces {
-  createdAt: Generated<Timestamp | null>;
-  id: Generated<string>;
-  name: string;
-  settings: Generated<Json | null>;
-  updatedAt: Generated<Timestamp | null>;
-}
-
-export interface WorkspaceMembers {
-  createdAt: Generated<Timestamp | null>;
+export interface ApplicantProfiles {
   id: Generated<number>;
-  invitedBy: number | null;
-  role: Generated<string>;
+  organizationId: number;
   userId: number;
-  workspaceId: string;
-}
-
-// ============================================================================
-// HELM TABLES - Profile & Resume
-// ============================================================================
-
-export interface Profiles {
-  createdAt: Generated<Timestamp | null>;
-  email: string | null;
-  firstName: string | null;
-  fullName: string;
-  id: Generated<string>;
-  label: string | null;
-  lastName: string | null;
-  location: Json | null;
-  middleName: string | null;
+  legalFullName: string | null;
+  nationalInsuranceNumber: string | null;
   phone: string | null;
-  socialProfiles: Json | null;
-  summary: string | null;
-  updatedAt: Generated<Timestamp | null>;
-  url: string | null;
-  workspaceId: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  postcode: string | null;
+  dateOfBirth: Timestamp | null;
+  consentAccepted: Generated<boolean>;
+  consentAcceptedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface WorkExperiences {
-  company: string;
-  createdAt: Generated<Timestamp | null>;
-  department: string | null;
-  employmentType: string | null;
-  endDate: Timestamp | null;
-  highlights: Json | null;
-  id: Generated<string>;
-  position: string;
-  profileId: string;
-  sortOrder: Generated<number | null>;
-  startDate: Timestamp | null;
-  summary: string | null;
-  updatedAt: Generated<Timestamp | null>;
-  url: string | null;
+export interface Applications {
+  id: Generated<number>;
+  organizationId: number;
+  applicantUserId: number;
+  profileId: number | null;
+  status: Generated<ApplicationStatus>;
+  title: string;
+  submittedAt: Timestamp | null;
+  eligibilityOutcome: Json | null;
+  eligibilityConfidence: Numeric | null;
+  missingEvidence: Json | null;
+  nextSteps: Json | null;
+  lockVersion: Generated<number>;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface EducationEntries {
-  area: string | null;
-  courses: Json | null;
-  createdAt: Generated<Timestamp | null>;
-  degreeType: string | null;
-  endDate: Timestamp | null;
-  id: Generated<string>;
-  institution: string;
-  minor: string | null;
-  profileId: string;
-  score: string | null;
-  sortOrder: Generated<number | null>;
-  startDate: Timestamp | null;
-  studyType: string | null;
-  updatedAt: Generated<Timestamp | null>;
-  url: string | null;
+export interface ApplicationHouseholdMembers {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  fullName: string;
+  relationship: string;
+  dateOfBirth: Timestamp | null;
+  employmentStatus: string | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface ResumeVariants {
-  canonicalDataHash: string | null;
-  compiledAt: Timestamp | null;
-  compiledData: Json | null;
-  createdAt: Generated<Timestamp | null>;
-  description: string | null;
-  id: Generated<string>;
-  isPrimary: Generated<boolean | null>;
-  lastCanonicalChange: Timestamp | null;
+export interface ApplicationIncomeRecords {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  incomeType: string;
+  amount: Numeric;
+  frequency: string;
+  evidenceDocumentId: number | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface ApplicationNeeds {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  accessibilityNeeds: string | null;
+  medicalNeeds: string | null;
+  supportNeeds: string | null;
+  structuredNeeds: Json | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Properties {
+  id: Generated<number>;
+  organizationId: number;
   name: string;
-  profileId: string;
-  targetRole: string | null;
-  updatedAt: Generated<Timestamp | null>;
-  viewDefinitionId: string | null;
-  workspaceId: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  postcode: string;
+  localAuthorityCode: string | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface VersionSnapshots {
-  canonicalHash: string | null;
-  createdAt: Generated<Timestamp | null>;
-  dataHash: string | null;
-  id: Generated<string>;
-  label: string | null;
-  notes: string | null;
-  resumeVariantId: string;
-  snapshotData: Json;
-  versionNumber: number;
+export interface Units {
+  id: Generated<number>;
+  organizationId: number;
+  propertyId: number;
+  unitRef: string;
+  bedrooms: number;
+  monthlyRent: Numeric;
+  isAccessible: Generated<boolean>;
+  status: string;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface ViewDefinitions {
-  createdAt: Generated<Timestamp | null>;
-  description: string | null;
-  id: Generated<string>;
-  isDefault: Generated<boolean | null>;
-  name: string;
-  redactions: Generated<Json | null>;
-  rules: Generated<Json>;
-  updatedAt: Generated<Timestamp | null>;
-  viewType: string | null;
-  workspaceId: string;
+export interface Allocations {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  unitId: number;
+  offerStatus: string;
+  offeredAt: Timestamp | null;
+  acceptedAt: Timestamp | null;
+  declinedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface PublicShareLinks {
-  createdAt: Generated<Timestamp | null>;
-  expiresAt: Timestamp | null;
-  id: Generated<string>;
-  isLive: Generated<boolean | null>;
-  isRevoked: Generated<boolean | null>;
-  label: string | null;
-  lastViewedAt: Timestamp | null;
-  passwordHash: string | null;
-  resumeVariantId: string;
-  snapshotId: string | null;
-  token: string;
-  viewCount: Generated<number | null>;
+export interface Documents {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number | null;
+  uploadedByUserId: number;
+  fileName: string;
+  mimeType: string;
+  storageKey: string;
+  fileSize: number;
+  antivirusStatus: string | null;
+  extractionText: string | null;
+  verificationStatus: Generated<DocumentVerificationStatus>;
+  moderationDecision: Generated<ModerationDecision>;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface QualityAnalyses {
-  analyzedAt: Generated<Timestamp>;
-  checklist: Generated<Json>;
-  dataHash: string;
-  id: Generated<string>;
-  isStale: Generated<boolean | null>;
-  resumeVariantId: string;
-  score: number;
-  snapshotId: string | null;
-  warnings: Generated<Json>;
+export interface CaseFiles {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  assignedCaseworkerUserId: number | null;
+  priority: Generated<CasePriority>;
+  status: string;
+  slaDueAt: Timestamp | null;
+  lastReviewedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-// ============================================================================
-// HELM TABLES - Import & Provenance
-// ============================================================================
-
-export interface ImportSessions {
-  completedAt: Timestamp | null;
-  createdAt: Generated<Timestamp | null>;
-  id: Generated<string>;
-  processedRecords: Generated<number | null>;
-  sourceArtifactId: string | null;
-  sourceType: Generated<string>;
-  status: Generated<string>;
-  totalRecords: Generated<number | null>;
-  workspaceId: string;
+export interface CaseNotes {
+  id: Generated<number>;
+  organizationId: number;
+  caseFileId: number;
+  authorUserId: number;
+  body: string;
+  createdAt: Generated<Timestamp>;
 }
 
-export interface StagingRecords {
-  createdAt: Generated<Timestamp | null>;
-  duplicateOfId: string | null;
-  fieldMappings: Generated<Json | null>;
-  id: Generated<string>;
-  importSessionId: string;
-  mappedData: Json | null;
-  mergeSuggestion: Json | null;
-  recordType: string;
-  sourceData: Json;
-  status: Generated<ImportStatus | null>;
-  updatedAt: Generated<Timestamp | null>;
-  userDecision: string | null;
+export interface Messages {
+  id: Generated<number>;
+  organizationId: number;
+  applicationId: number;
+  senderUserId: number;
+  recipientUserId: number | null;
+  body: string;
+  moderationDecision: Generated<ModerationDecision>;
+  visibility: Generated<MessageVisibility>;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface SourceArtifacts {
-  fileHash: string | null;
-  filename: string;
-  fileSizeBytes: number | null;
-  id: Generated<string>;
-  label: string | null;
-  metadata: Generated<Json | null>;
-  mimeType: string | null;
-  uploadedAt: Generated<Timestamp | null>;
-  workspaceId: string;
-}
-
-export interface ProvenanceLinks {
-  confidence: Generated<string | null>;
-  createdAt: Generated<Timestamp | null>;
-  id: Generated<string>;
-  notes: string | null;
-  sourceArtifactId: string | null;
-  sourceDate: Timestamp | null;
-  sourceType: string;
-  targetField: string | null;
+export interface ModerationItems {
+  id: Generated<number>;
+  organizationId: number;
+  targetType: ModerationTargetType;
   targetId: string;
-  targetTable: string;
-  workspaceId: string;
+  rawText: string | null;
+  piiFindings: Json | null;
+  modelFlags: Json | null;
+  ruleFlags: Json | null;
+  riskScore: number;
+  decision: ModerationDecision;
+  policyVersionId: number | null;
+  createdByUserId: number | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
 }
 
-export interface ChangeLogEntries {
-  action: string;
-  afterData: Json | null;
-  beforeData: Json | null;
-  changedAt: Generated<Timestamp | null>;
-  changedBy: string | null;
-  id: Generated<string>;
+export interface ModerationEvents {
+  id: Generated<number>;
+  organizationId: number;
+  moderationItemId: number;
+  actorUserId: number | null;
+  eventType: string;
   reason: string | null;
-  targetId: string;
-  targetTable: string;
-  workspaceId: string;
+  metadata: Json | null;
+  createdAt: Generated<Timestamp>;
 }
 
-// ============================================================================
-// CMOS TABLES - Career Entities
-// ============================================================================
-
-export interface Achievements {
-  achievedDate: Timestamp;
-  category: AchievementCategory;
-  createdAt: Generated<Timestamp>;
-  description: string;
-  evidenceUrl: string | null;
-  id: Generated<string>;
-  quantifiableImpact: string | null;
+export interface PolicyVersions {
+  id: Generated<number>;
+  organizationId: number;
+  versionNumber: number;
   title: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
+  rules: Json;
+  isActive: Generated<boolean>;
+  publishedByUserId: number;
+  createdAt: Generated<Timestamp>;
 }
 
-export interface Compensation {
-  baseSalary: Numeric;
-  benefitsNote: string | null;
-  bonus: Numeric | null;
+export interface AiRuns {
+  id: Generated<number>;
+  organizationId: number;
+  runType: string;
+  provider: string;
+  modelName: string;
+  promptRedacted: string | null;
+  responseRedacted: string | null;
+  tokenUsage: Json | null;
+  latencyMs: number | null;
+  outcome: string;
+  correlationId: string | null;
   createdAt: Generated<Timestamp>;
-  currency: Generated<string>;
-  effectiveDate: Timestamp;
-  equityValue: Numeric | null;
-  id: Generated<string>;
-  jobId: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
 }
 
-export interface Content {
-  contentType: Generated<ContentType>;
+export interface AuditEvents {
+  id: Generated<number>;
+  organizationId: number;
+  actorUserId: number | null;
+  eventType: string;
+  entityType: string | null;
+  entityId: string | null;
+  metadata: Json | null;
+  correlationId: string | null;
   createdAt: Generated<Timestamp>;
-  description: string | null;
-  engagementMetrics: string | null;
-  id: Generated<string>;
-  platform: string | null;
-  publicationDate: Timestamp;
+}
+
+export interface PiiAccessLogs {
+  id: Generated<number>;
+  organizationId: number;
+  actorUserId: number;
+  entityType: string;
+  entityId: string;
+  fieldsAccessed: Json;
+  reason: string | null;
+  correlationId: string | null;
+  createdAt: Generated<Timestamp>;
+}
+
+export interface KnowledgeDocuments {
+  id: Generated<number>;
+  organizationId: number;
   title: string;
-  updatedAt: Generated<Timestamp>;
-  url: string | null;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface Events {
+  content: string;
+  sourceUrl: string | null;
+  tags: Json | null;
+  isApproved: Generated<boolean>;
   createdAt: Generated<Timestamp>;
-  description: string | null;
-  eventDate: Timestamp | null;
-  eventEndDate: Timestamp | null;
-  eventType: Generated<EventType>;
-  id: string;
-  location: string | null;
-  notes: string | null;
-  title: string;
   updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
 }
-
-export interface Feedback {
-  context: string | null;
-  createdAt: Generated<Timestamp>;
-  feedbackDate: Timestamp;
-  feedbackType: FeedbackType;
-  id: Generated<string>;
-  notes: string;
-  personId: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface Goals {
-  createdAt: Generated<Timestamp>;
-  description: string;
-  goalType: GoalType;
-  id: Generated<string>;
-  notes: string | null;
-  status: Generated<GoalStatus>;
-  targetDate: Timestamp;
-  title: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface Institutions {
-  createdAt: Generated<Timestamp>;
-  degree: string | null;
-  endDate: Timestamp | null;
-  fieldOfStudy: string | null;
-  id: string;
-  location: string | null;
-  name: string;
-  notes: string | null;
-  startDate: Timestamp | null;
-  type: Generated<InstitutionType>;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface Interactions {
-  createdAt: Generated<Timestamp>;
-  id: string;
-  interactionDate: Timestamp;
-  interactionType: InteractionType;
-  notes: string | null;
-  personId: string;
-  projectId: string | null;
-  tags: string | null;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface Jobs {
-  company: string;
-  createdAt: Generated<Timestamp>;
-  description: string | null;
-  endDate: Timestamp | null;
-  id: string;
-  isCurrent: Generated<boolean>;
-  location: string | null;
-  notes: string | null;
-  startDate: Timestamp | null;
-  title: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-  // Enhanced fields from Helm WorkExperiences
-  highlights: Json | null;
-  summary: string | null;
-  department: string | null;
-  employmentType: string | null;
-  url: string | null;
-}
-
-export interface Learning {
-  completionDate: Timestamp | null;
-  cost: Numeric | null;
-  createdAt: Generated<Timestamp>;
-  id: Generated<string>;
-  learningType: Generated<LearningType>;
-  notes: string | null;
-  provider: string | null;
-  skillsGained: string | null;
-  startDate: Timestamp | null;
-  status: Generated<LearningStatus>;
-  title: string;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-export interface People {
-  company: string | null;
-  createdAt: Generated<Timestamp>;
-  email: string | null;
-  id: string;
-  lastContactedAt: Timestamp | null;
-  name: string;
-  notes: string | null;
-  relationshipType: Generated<string | null>;
-  role: string | null;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-// MERGED: Projects - CMOS base with Helm enhancements
-export interface Projects {
-  createdAt: Generated<Timestamp>;
-  description: string | null;
-  endDate: Timestamp | null;
-  id: string;
-  name: string;
-  startDate: Timestamp | null;
-  status: Generated<ProjectStatus>;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-  // Enhanced fields from Helm
-  highlights: Json | null;
-  keywords: Json | null;
-  url: string | null;
-  sortOrder: Generated<number | null>;
-  profileId: string | null; // Link to profile for resume projects
-}
-
-export interface Relationships {
-  createdAt: Generated<Timestamp>;
-  id: string;
-  notes: string | null;
-  relationshipLabel: string;
-  sourceId: string;
-  sourceType: EntityType;
-  targetId: string;
-  targetType: EntityType;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-}
-
-// MERGED: Skills - CMOS base with Helm enhancements
-export interface Skills {
-  category: string | null;
-  createdAt: Generated<Timestamp>;
-  id: string;
-  name: string;
-  notes: string | null;
-  proficiency: Generated<SkillProficiency>;
-  updatedAt: Generated<Timestamp>;
-  workspaceId: string | null; // Added for workspace support
-  // Enhanced fields from Helm
-  keywords: Json | null;
-  level: string | null;
-  sortOrder: Generated<number | null>;
-  profileId: string | null; // Link to profile for resume skills
-}
-
-// ============================================================================
-// UNIFIED DATABASE INTERFACE
-// ============================================================================
 
 export interface DB {
-  // Auth & Workspace (from Helm)
+  organizations: Organizations;
+  organizationMemberships: OrganizationMemberships;
   users: Users;
   userPasswords: UserPasswords;
   sessions: Sessions;
-  oauthAccounts: OauthAccounts;
-  oauthStates: OauthStates;
   loginAttempts: LoginAttempts;
-  workspaces: Workspaces;
-  workspaceMembers: WorkspaceMembers;
-
-  // Profile & Resume (from Helm)
-  profiles: Profiles;
-  workExperiences: WorkExperiences;
-  educationEntries: EducationEntries;
-  resumeVariants: ResumeVariants;
-  versionSnapshots: VersionSnapshots;
-  viewDefinitions: ViewDefinitions;
-  publicShareLinks: PublicShareLinks;
-  qualityAnalyses: QualityAnalyses;
-
-  // Import & Provenance (from Helm)
-  importSessions: ImportSessions;
-  stagingRecords: StagingRecords;
-  sourceArtifacts: SourceArtifacts;
-  provenanceLinks: ProvenanceLinks;
-  changeLogEntries: ChangeLogEntries;
-
-  // Career Entities (from CMOS)
-  achievements: Achievements;
-  compensation: Compensation;
-  content: Content;
-  events: Events;
-  feedback: Feedback;
-  goals: Goals;
-  institutions: Institutions;
-  interactions: Interactions;
-  jobs: Jobs;
-  learning: Learning;
-  people: People;
-  projects: Projects;
-  relationships: Relationships;
-  skills: Skills;
+  applicantProfiles: ApplicantProfiles;
+  applications: Applications;
+  applicationHouseholdMembers: ApplicationHouseholdMembers;
+  applicationIncomeRecords: ApplicationIncomeRecords;
+  applicationNeeds: ApplicationNeeds;
+  properties: Properties;
+  units: Units;
+  allocations: Allocations;
+  documents: Documents;
+  caseFiles: CaseFiles;
+  caseNotes: CaseNotes;
+  messages: Messages;
+  moderationItems: ModerationItems;
+  moderationEvents: ModerationEvents;
+  policyVersions: PolicyVersions;
+  aiRuns: AiRuns;
+  auditEvents: AuditEvents;
+  piiAccessLogs: PiiAccessLogs;
+  knowledgeDocuments: KnowledgeDocuments;
 }
 
-// ============================================================================
-// ENUM ARRAY VALUES (for zod validation and UI selects)
-// ============================================================================
+export const UserRoleArrayValues: [UserRole, ...UserRole[]] = [
+  "platform_admin",
+  "caseworker",
+  "applicant",
+];
 
-// CMOS Enums
-export const ProjectStatusArrayValues: [ProjectStatus, ...ProjectStatus[]] = ["cancelled","completed","in_progress","on_hold","planning"];
-export const SkillProficiencyArrayValues: [SkillProficiency, ...SkillProficiency[]] = ["advanced","beginner","expert","intermediate"];
-export const InstitutionTypeArrayValues: [InstitutionType, ...InstitutionType[]] = ["bootcamp","college","organization","other","school","university"];
-export const EventTypeArrayValues: [EventType, ...EventType[]] = ["conference","interview","meeting","networking","other","presentation","workshop"];
-export const EntityTypeArrayValues: [EntityType, ...EntityType[]] = ["event","institution","job","person","project","skill"];
-export const InteractionTypeArrayValues: [InteractionType, ...InteractionType[]] = ["call","coffee","email","meeting"];
-export const FeedbackTypeArrayValues: [FeedbackType, ...FeedbackType[]] = ["360_feedback","career_coach","one_on_one","peer_feedback","performance_review"];
-export const AchievementCategoryArrayValues: [AchievementCategory, ...AchievementCategory[]] = ["award","certification","milestone","promotion","recognition"];
-export const GoalTypeArrayValues: [GoalType, ...GoalType[]] = ["career","financial","relationship","skill"];
-export const GoalStatusArrayValues: [GoalStatus, ...GoalStatus[]] = ["abandoned","completed","in_progress","not_started"];
-export const LearningTypeArrayValues: [LearningType, ...LearningType[]] = ["certification","conference","course","degree","workshop"];
-export const LearningStatusArrayValues: [LearningStatus, ...LearningStatus[]] = ["abandoned","completed","in_progress","planned"];
-export const ContentTypeArrayValues: [ContentType, ...ContentType[]] = ["article","media_mention","post","publication","speaking"];
+export const MembershipRoleArrayValues: [MembershipRole, ...MembershipRole[]] = [
+  "platform_admin",
+  "caseworker",
+  "applicant",
+];
 
-// Helm Enums
-export const ImportStatusArrayValues: [ImportStatus, ...ImportStatus[]] = ["committed","mapped","merged","pending","skipped"];
-export const UserRoleArrayValues: [UserRole, ...UserRole[]] = ["admin","owner","user"];
+export const OrganizationStatusArrayValues: [
+  OrganizationStatus,
+  ...OrganizationStatus[],
+] = ["active", "suspended"];
 
-// Note: kysely maps the table/column/enum names from snake_case to camelCase and PascalCase. 
-// When running SQL statements, make sure to use snake_case, but TypeScript code should use camelCase or PascalCase.
+export const ApplicationStatusArrayValues: [
+  ApplicationStatus,
+  ...ApplicationStatus[],
+] = [
+  "draft",
+  "submitted",
+  "in_review",
+  "needs_info",
+  "eligible",
+  "ineligible",
+  "allocated",
+  "closed",
+];
+
+export const ModerationDecisionArrayValues: [
+  ModerationDecision,
+  ...ModerationDecision[],
+] = ["approved", "pending_review", "blocked"];
+
+export const ModerationTargetTypeArrayValues: [
+  ModerationTargetType,
+  ...ModerationTargetType[],
+] = ["application_field", "message", "document", "assistant_prompt"];
+
+export const CasePriorityArrayValues: [CasePriority, ...CasePriority[]] = [
+  "low",
+  "medium",
+  "high",
+  "urgent",
+];
+
+export const MessageVisibilityArrayValues: [
+  MessageVisibility,
+  ...MessageVisibility[],
+] = ["hidden", "visible"];
+
+export const DocumentVerificationStatusArrayValues: [
+  DocumentVerificationStatus,
+  ...DocumentVerificationStatus[],
+] = ["pending", "verified", "rejected", "needs_recheck"];

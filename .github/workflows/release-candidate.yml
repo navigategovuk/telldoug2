@@ -1,0 +1,125 @@
+name: release-candidate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci --legacy-peer-deps
+      - run: npm run autonomy:validate-backlog
+      - run: npm run contracts:generate
+      - run: npm run build
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/housing-portal
+          tags: |
+            type=sha
+            type=raw,value=rc-${{ github.run_number }}
+
+      - name: Build and push image
+        id: build_image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Resolve migration version
+        id: migration
+        run: |
+          version=$(ls migrations/*.sql 2>/dev/null | sort | tail -n 1 | xargs -n 1 basename || true)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release manifest
+        run: |
+          mkdir -p release
+          node - <<'NODE'
+          const fs = require("fs");
+          const crypto = require("crypto");
+
+          const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+          const contractPaths = [
+            "contracts/housing-api.contract.snapshot.json",
+            "contracts/openapi.housing.v1.json",
+          ];
+
+          const contractHashes = {};
+          for (const p of contractPaths) {
+            const content = fs.readFileSync(p);
+            contractHashes[p] = crypto.createHash("sha256").update(content).digest("hex");
+          }
+
+          const payload = {
+            version: process.env.RELEASE_VERSION || pkg.version || "dev",
+            commitSha: process.env.GITHUB_SHA || null,
+            imageDigest: process.env.IMAGE_DIGEST || null,
+            migrationVersion: process.env.MIGRATION_VERSION || null,
+            generatedAt: new Date().toISOString(),
+            buildMetadata: {
+              repository: process.env.GITHUB_REPOSITORY,
+              runId: process.env.GITHUB_RUN_ID,
+              runNumber: process.env.GITHUB_RUN_NUMBER,
+              actor: process.env.GITHUB_ACTOR,
+            },
+            contractHashes,
+          };
+
+          const payloadString = JSON.stringify(payload);
+          const manifestSha256 = crypto.createHash("sha256").update(payloadString).digest("hex");
+
+          const signingKey = process.env.RELEASE_MANIFEST_SIGNING_KEY || "";
+          const hmacSignature = signingKey
+            ? crypto.createHmac("sha256", signingKey).update(payloadString).digest("hex")
+            : null;
+
+          const manifest = {
+            ...payload,
+            manifestSha256,
+            signature: {
+              algorithm: hmacSignature ? "HMAC-SHA256" : "SHA256",
+              value: hmacSignature ?? manifestSha256,
+              keyReference: hmacSignature ? "RELEASE_MANIFEST_SIGNING_KEY" : "unsigned_fallback",
+            },
+          };
+
+          fs.writeFileSync(
+            "release/release-manifest.json",
+            JSON.stringify(manifest, null, 2) + "\n"
+          );
+          NODE
+        env:
+          IMAGE_DIGEST: ${{ steps.build_image.outputs.digest }}
+          MIGRATION_VERSION: ${{ steps.migration.outputs.version }}
+          RELEASE_VERSION: ${{ vars.RELEASE_VERSION }}
+          RELEASE_MANIFEST_SIGNING_KEY: ${{ secrets.RELEASE_MANIFEST_SIGNING_KEY }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate-manifest
+          path: |
+            release/release-manifest.json

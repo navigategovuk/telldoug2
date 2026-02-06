@@ -111,11 +111,12 @@
     border-color: color-mix(in srgb, var(--primary), black 15%);
   }
 
+  /* Secondary - Secondary color text on very light secondary tint background */
   .secondary {
-    background-color: var(--secondary);
-    color: var(--secondary-foreground);
-    border-color: var(--secondary);
-    --spinner-color: var(--secondary-foreground);
+    background-color: color-mix(in srgb, var(--secondary), white 92%);
+    color: var(--secondary);
+    border-color: transparent;
+    --spinner-color: var(--secondary);
   }
 
   .secondary:hover {

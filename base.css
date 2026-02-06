@@ -1,8 +1,8 @@
 
-@import url(https://fonts.googleapis.com/css2?family=Outfit:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Fira+Code:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Caveat:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap);
+
+
+
 :root {
   /* Content layers */
   --z-content-low: 10; /* Minor elevated content */
@@ -46,120 +46,121 @@
 }
 
 :root {
-  /* Light Mode (Default) - Warm, Paper-like, Clean */
-  --background: hsl(40 20% 98%); /* Very subtle warm off-white/sand */
-  --foreground: hsl(220 40% 20%); /* Deep slate for primary text */
+  /* Default Theme (Now Dark) - BACKROOM Aesthetic */
+  --background: hsl(0 0% 5%); /* Very dark charcoal/Near Black */
+  --foreground: hsl(0 0% 98%); /* White text */
 
-  --surface: hsl(0 0% 100%); /* Pure white for cards */
-  --surface-foreground: hsl(220 40% 20%);
-  
-  --sidebar: hsl(40 15% 95%); /* Slightly darker sand for sidebar */
-  --sidebar-foreground: hsl(220 30% 30%);
+  --surface: hsl(0 0% 8%); /* Slightly lighter than background for separation */
+  --surface-foreground: hsl(0 0% 100%);
 
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(220 40% 20%);
+  --sidebar: hsl(0 0% 7%);
+  --sidebar-foreground: hsl(0 0% 100%);
 
-  --popup: hsl(0 0% 100%);
-  --popup-foreground: hsl(220 40% 20%);
+  --card: hsl(0 0% 8%); /* Matching surface for cohesive look */
+  --card-foreground: hsl(0 0% 100%);
 
-  /* Primary: Deep Slate Blue (Professional yet friendly, matches logo vibe) */
-  --primary: hsl(215 60% 35%); 
-  --primary-foreground: hsl(0 0% 100%);
+  --popup: hsl(0 0% 10%);
+  --popup-foreground: hsl(0 0% 100%);
 
-  /* Secondary: Sage Green (Growth, Skills, Positive reinforcement) */
-  --secondary: hsl(140 25% 90%); 
-  --secondary-foreground: hsl(145 60% 25%);
+  /* Primary: Electric Acid Green - Kept from original */
+  --primary: hsl(75 90% 45%); 
+  --primary-foreground: hsl(0 0% 0%);
 
-  /* Accent: Warm Clay (For highlights, important timeline events) */
-  --accent: hsl(25 70% 92%);
-  --accent-foreground: hsl(25 80% 30%);
+  /* Secondary: Light Grey - High contrast against dark background */
+  --secondary: hsl(0 0% 90%);
+  --secondary-foreground: hsl(0 0% 0%);
 
-  --muted: hsl(220 15% 94%);
-  --muted-foreground: hsl(220 10% 50%);
+  /* Accent: Hyper Blue */
+  --accent: hsl(240 100% 65%);
+  --accent-foreground: hsl(0 0% 100%);
 
-  --success: hsl(145 60% 40%);
+  /* Muted: Dark Grey for subtle elements */
+  --muted: hsl(0 0% 15%);
+  --muted-foreground: hsl(0 0% 60%);
+
+  --success: hsl(140 80% 40%);
   --success-foreground: hsl(0 0% 100%);
 
-  --error: hsl(0 70% 60%);
+  --error: hsl(0 80% 60%);
   --error-foreground: hsl(0 0% 100%);
 
-  --warning: hsl(35 90% 60%);
-  --warning-foreground: hsl(0 0% 100%);
+  --warning: hsl(45 100% 50%);
+  --warning-foreground: hsl(0 0% 0%);
 
-  --info: hsl(210 80% 60%);
-  --info-foreground: hsl(0 0% 100%);
-  --info-hover: hsl(210 80% 50%);
-  --info-active: hsl(210 80% 40%);
+  --info: hsl(200 80% 60%);
+  --info-foreground: hsl(0 0% 0%);
+  --info-hover: hsl(200 80% 50%);
+  --info-active: hsl(200 80% 40%);
 
-  --border: hsl(220 15% 90%); /* Subtle cool gray border */
+  --border: hsl(0 0% 25%); /* Visible grey border on dark bg */
 
   /* Font Families */
-  /* Using 'Outfit' for headings (geometric, friendly like the logo) and 'JetBrains Mono' for data */
-  --font-family-base: 'Outfit', system-ui, -apple-system, sans-serif;
-  --font-family-heading: 'Outfit', system-ui, -apple-system, sans-serif;
-  --font-family-monospace: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-family-cursive: 'Caveat', cursive; /* For personal notes/journal entries */
+  --font-family-base: 'Inter', sans-serif; /* Unified, geometric */
+  --font-family-heading: 'Inter', sans-serif; /* Bold, impactful */
+  --font-family-monospace: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", monospace;
+  --font-family-cursive: 'Inter', sans-serif;
 
-  /* Border Radius - Generous and friendly */
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-full: 9999px;
+  /* Border Radius - Brutalist 0px */
+  --shadow: 0 0 0 0 transparent; /* No shadows */
+  --shadow-md: 0 0 0 0 transparent;
+  --shadow-lg: 0 0 0 0 transparent;
+  --shadow-focus: 0 0 0 2px var(--foreground);
 
-  /* Shadows - Very subtle, diffuse, "paper" feel */
-  --shadow: 0 1px 2px 0 hsl(220 20% 10% / 0.05);
-  --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.05), 0 2px 4px -1px hsl(220 20% 10% / 0.03);
-  --shadow-lg: 0 10px 15px -3px hsl(220 20% 10% / 0.05), 0 4px 6px -2px hsl(220 20% 10% / 0.025);
-  --shadow-focus: 0 0 0 4px hsl(215 60% 35% / 0.15);
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px; 
 
-  /* Animation */
-  --animation-duration-fast: 150ms;
-  --animation-duration-normal: 300ms;
-  --animation-duration-slow: 500ms;
+  /* Animation - Snappy, instant */
+  --animation-duration-fast: 0.1s;
+  --animation-duration-normal: 0.2s;
+  --animation-duration-slow: 0.4s;
 
-  /* Chart Colors - Earthy but distinct */
-  --chart-color-1: hsl(215 60% 45%); /* Blue */
-  --chart-color-2: hsl(150 40% 45%); /* Green */
-  --chart-color-3: hsl(35 80% 55%);  /* Mustard */
-  --chart-color-4: hsl(10 70% 60%);  /* Terracotta */
-  --chart-color-5: hsl(260 30% 55%); /* Muted Purple */
+  /* Chart colors - Optimized for dark background */
+  --chart-color-1: hsl(75 90% 45%);
+  --chart-color-2: hsl(0 0% 100%);
+  --chart-color-3: hsl(0 0% 60%);
+  --chart-color-4: hsl(240 100% 65%);
+  --chart-color-5: hsl(0 0% 30%);
 }
 
 .dark {
-  /* Dark Mode - Deep, "Night Shift" OS, High Contrast Data */
-  --background: hsl(220 30% 10%); /* Very dark blue-grey */
-  --foreground: hsl(220 20% 95%);
-
-  --surface: hsl(220 25% 14%); /* Slightly lighter surface */
-  --surface-foreground: hsl(220 20% 95%);
-
-  --sidebar: hsl(220 30% 8%);
-  --sidebar-foreground: hsl(220 20% 80%);
-
-  --card: hsl(220 25% 14%);
-  --card-foreground: hsl(220 20% 95%);
-
-  --popup: hsl(220 25% 16%);
-  --popup-foreground: hsl(220 20% 95%);
-
-  --primary: hsl(215 70% 60%); /* Brighter blue for dark mode visibility */
-  --primary-foreground: hsl(220 30% 10%);
-
-  --secondary: hsl(140 20% 20%); /* Dark Sage */
-  --secondary-foreground: hsl(140 60% 80%);
-
-  --accent: hsl(25 40% 20%); /* Dark Clay */
-  --accent-foreground: hsl(25 80% 80%);
-
-  --muted: hsl(220 20% 20%);
-  --muted-foreground: hsl(220 10% 65%);
-
-  --border: hsl(220 20% 22%); /* Lighter border for definition in dark mode */
-  
-  /* Adjust shadows for dark mode to be barely visible or rely on borders */
-  --shadow: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3);
+  /* Dark Mode - Same as default now */
+  --background: hsl(0 0% 5%);
+  --foreground: hsl(0 0% 98%);
+  --surface: hsl(0 0% 8%);
+  --surface-foreground: hsl(0 0% 100%);
+  --sidebar: hsl(0 0% 7%);
+  --sidebar-foreground: hsl(0 0% 100%);
+  --card: hsl(0 0% 8%);
+  --card-foreground: hsl(0 0% 100%);
+  --popup: hsl(0 0% 10%);
+  --popup-foreground: hsl(0 0% 100%);
+  --primary: hsl(75 90% 45%);
+  --primary-foreground: hsl(0 0% 0%);
+  --secondary: hsl(0 0% 90%);
+  --secondary-foreground: hsl(0 0% 0%);
+  --accent: hsl(240 100% 65%);
+  --accent-foreground: hsl(0 0% 100%);
+  --muted: hsl(0 0% 15%);
+  --muted-foreground: hsl(0 0% 60%);
+  --success: hsl(140 80% 40%);
+  --success-foreground: hsl(0 0% 100%);
+  --error: hsl(0 80% 60%);
+  --error-foreground: hsl(0 0% 100%);
+  --warning: hsl(45 100% 50%);
+  --warning-foreground: hsl(0 0% 0%);
+  --info: hsl(200 80% 60%);
+  --info-foreground: hsl(0 0% 0%);
+  --info-hover: hsl(200 80% 50%);
+  --info-active: hsl(200 80% 40%);
+  --border: hsl(0 0% 25%);
+  --chart-color-1: hsl(75 90% 45%);
+  --chart-color-2: hsl(0 0% 100%);
+  --chart-color-3: hsl(0 0% 60%);
+  --chart-color-4: hsl(240 100% 65%);
+  --chart-color-5: hsl(0 0% 30%);
 }
 @layer base {
   ul {
@@ -198,7 +199,4 @@
   th, td {
     display: table-cell!important;
   }
-}
-.rbc-month-view {
-  overflow: visible !important;
 }

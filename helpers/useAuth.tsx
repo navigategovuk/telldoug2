@@ -1,112 +1,101 @@
-import React, {
-  createContext,
-  useContext,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { createContext, useCallback, useContext, useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getSession } from "../endpoints/auth/session_GET.schema";
 import { postLogout } from "../endpoints/auth/logout_POST.schema";
-import { User } from "./User";
+import { postSwitchOrganization } from "../endpoints/orgs/switch_POST.schema";
+import { SessionContext } from "./User";
 
-// React Query key for auth session. Make sure to optimistically update user infos using this.
 export const AUTH_QUERY_KEY = ["auth", "session"] as const;
 
-// Do not use this state in login/register UI because it's irrelevant. Only use it in UI that requires authentication.
-// For pages that requires authentication only in parts of the UI (e.g. typical home page with a user avatar), the loading
-// state should not apply to the full page, only to the parts that require authentication.
-// Also, global context providers should not be blocked on auth states as it will block the whole page.
 type AuthState =
-  | {
-      // Make sure to display a nice loading state UI when loading authentication state
-      type: "loading";
-    }
-  | {
-      type: "authenticated";
-      user: User;
-    }
-  | {
-      // Make sure to redirect to login or show auth error UI
-      type: "unauthenticated";
-      errorMessage?: string;
-    };
+  | { type: "loading" }
+  | { type: "authenticated"; context: SessionContext }
+  | { type: "mfa_required" }
+  | { type: "unauthenticated"; errorMessage?: string };
 
 type AuthContextType = {
-  // Use this to display the correct UI based on auth state
   authState: AuthState;
-  // Notify the auth provider that we have logged in
-  onLogin: (user: User) => void;
-  // Clear the auth state and perform the logout request
+  onLogin: (context: SessionContext) => void;
   logout: () => Promise<void>;
+  switchOrganization: (organizationId: number) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Add this to components/_globalContextProviders but not any pageLayout files.
-// Make sure it's within the QueryClientProvider
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
 
-  const { data, error, status, refetch } = useQuery({
+  const sessionQuery = useQuery({
     queryKey: AUTH_QUERY_KEY,
     queryFn: async () => {
-      const result = await getSession();
-      if ("error" in result) {
-        throw new Error(result.error);
-      }
-      return result.user;
+      const data = await getSession();
+      return data;
     },
     retry: 1,
-    enabled: true,
     staleTime: Infinity,
   });
 
-  const authState: AuthState =
-    status === "pending"
-      ? { type: "loading" }
-      : status === "error"
-        ? {
-            type: "unauthenticated",
-            errorMessage:
-              error instanceof Error ? error.message : "Session check failed",
-          }
-        : data
-          ? { type: "authenticated", user: data }
-          : { type: "unauthenticated" };
+  const switchOrgMutation = useMutation({
+    mutationFn: (organizationId: number) => postSwitchOrganization({ organizationId }),
+    onSuccess: (result) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, result);
+    },
+  });
 
-  const logout = useCallback(async () => {
-    // Optimistically update UI
-    queryClient.setQueryData(AUTH_QUERY_KEY, null);
-    // Make the actual API call
-    await postLogout();
-    // Invalidate all queries after login so previous user's state don't corrupt new user state.
-    queryClient.resetQueries();
-  }, [queryClient]);
+  const authState: AuthState = useMemo(() => {
+    if (sessionQuery.status === "pending") {
+      return { type: "loading" };
+    }
 
-  // This should only be used for login. For user profile changes, create separate endpoints and react query hooks
-  // and update the data linked to AUTH_QUERY_KEY.
+    if (sessionQuery.status === "error") {
+      const message = sessionQuery.error instanceof Error ? sessionQuery.error.message : "Not authenticated";
+      if (message.toLowerCase().includes("mfa required")) {
+        return { type: "mfa_required" };
+      }
+      return { type: "unauthenticated", errorMessage: message };
+    }
+
+    if (!sessionQuery.data?.user) {
+      return { type: "unauthenticated" };
+    }
+
+    return {
+      type: "authenticated",
+      context: sessionQuery.data,
+    };
+  }, [sessionQuery.data, sessionQuery.error, sessionQuery.status]);
+
   const onLogin = useCallback(
-    (user: User) => {
-      queryClient.setQueryData(AUTH_QUERY_KEY, user);
+    (context: SessionContext) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, context);
     },
     [queryClient]
   );
 
+  const logout = useCallback(async () => {
+    queryClient.setQueryData(AUTH_QUERY_KEY, null);
+    await postLogout();
+    queryClient.resetQueries();
+  }, [queryClient]);
+
+  const switchOrganization = useCallback(
+    async (organizationId: number) => {
+      await switchOrgMutation.mutateAsync(organizationId);
+    },
+    [switchOrgMutation]
+  );
+
   return (
-    <AuthContext.Provider value={{ authState, logout, onLogin }}>
+    <AuthContext.Provider value={{ authState, onLogin, logout, switchOrganization }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Prefer using protectedRoutes instead of this hook unless the route doesn't need to be protected (e.g. login/register)
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within a AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };

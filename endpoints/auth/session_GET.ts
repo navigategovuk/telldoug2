@@ -1,41 +1,24 @@
-import {
-  setServerSession,
-  NotAuthenticatedError,
-} from "../../helpers/getSetServerSession";
-import { User } from "../../helpers/User";
+import { handleEndpointError } from "../../helpers/endpointError";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
+import { jsonResponse } from "../../helpers/http";
+import { setServerSession } from "../../helpers/getSetServerSession";
+import { toSessionContext } from "../../helpers/sessionContext";
 
 export async function handle(request: Request) {
   try {
-    const { user, session } = await getServerUserSession(request);
+    const ctx = await getServerUserSession(request);
+    const response = jsonResponse(toSessionContext(ctx));
 
-    // Create response with user data
-    const response = Response.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        avatarUrl: user.avatarUrl,
-        role: user.role,
-      } satisfies User,
-    });
-
-    // Update the session cookie with the new lastAccessed time
     await setServerSession(response, {
-      id: session.id,
-      createdAt: session.createdAt,
-      lastAccessed: session.lastAccessed.getTime(),
+      id: ctx.session.id,
+      createdAt: ctx.session.createdAt.getTime(),
+      lastAccessed: Date.now(),
+      activeOrganizationId: ctx.activeOrganizationId,
+      mfaPending: false,
     });
 
     return response;
   } catch (error) {
-    if (error instanceof NotAuthenticatedError) {
-      return Response.json({ error: "Not authenticated" }, { status: 401 });
-    }
-    console.error("Session validation error:", error);
-    return Response.json(
-      { error: "Session validation failed" },
-      { status: 400 }
-    );
+    return handleEndpointError(error);
   }
 }

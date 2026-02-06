@@ -1,0 +1,22 @@
+name: governance-dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: node autonomy/scripts/governanceSnapshot.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: governance-snapshot
+          path: autonomy-artifacts/governance-snapshot.md

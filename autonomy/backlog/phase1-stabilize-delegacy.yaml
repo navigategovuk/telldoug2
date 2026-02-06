@@ -1,0 +1,56 @@
+id: phase1-stabilize-delegacy
+title: Stabilize and de-legacy housing runtime
+priority: high
+risk: low
+owner: autonomous_runner
+
+tasks:
+  - id: remove_legacy_pages
+    title: Remove creator-era pages from pages/
+    risk: low
+    acceptance_checks:
+      - only_housing_pages_exist
+      - npm_run_build_passes
+    rollback:
+      - restore_deleted_page_files
+      - rerun_build
+
+  - id: remove_legacy_endpoints
+    title: Remove creator-era endpoints not on active route map
+    risk: medium
+    acceptance_checks:
+      - route_map_matches_filesystem
+      - npm_run_build_passes
+    rollback:
+      - restore_deleted_endpoint_files
+      - regenerate_contract_snapshots
+
+  - id: remove_legacy_helpers
+    title: Remove unreferenced legacy helpers/hooks
+    risk: low
+    acceptance_checks:
+      - static_import_scan_no_missing_modules
+      - npm_run_build_passes
+    rollback:
+      - restore_deleted_helper_files
+      - rerun_build
+
+  - id: standardize_api_envelope
+    title: Emit unified success/error response envelope
+    risk: medium
+    acceptance_checks:
+      - success_envelope_has_data_and_correlation_id
+      - error_envelope_has_error_code_message_and_correlation_id
+    rollback:
+      - revert_http_envelope_changes
+      - verify_client_schema_parsing
+
+  - id: freeze_contracts
+    title: Generate and commit active API contract snapshots
+    risk: low
+    acceptance_checks:
+      - openapi_contract_snapshot_exists
+      - route_contract_snapshot_exists
+    rollback:
+      - regenerate_previous_contract_snapshot
+      - verify_server_route_consistency

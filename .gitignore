@@ -52,4 +52,9 @@ temp/
 # Database
 *.sqlite
 *.db
-env.json
+
+# Local runtime config
+
+# Local autonomy output
+autonomy-artifacts/
+reports/

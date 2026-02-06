@@ -1,0 +1,36 @@
+id: phase4-release-rollback
+title: Autonomous release and rollback
+priority: critical
+risk: high
+owner: autonomous_runner
+
+tasks:
+  - id: terraform_foundation
+    title: Add Terraform modules for AWS runtime and observability primitives
+    risk: high
+    acceptance_checks:
+      - terraform_validate_passes
+      - required_modules_present
+    rollback:
+      - revert_infra_module_changes
+      - retain_previous_manual_infra_path
+
+  - id: signed_release_manifest
+    title: Produce release manifest with digest, migration, contract hash and signature
+    risk: medium
+    acceptance_checks:
+      - release_manifest_contains_required_fields
+      - release_manifest_has_signature_or_digest
+    rollback:
+      - revert_release_manifest_changes
+      - preserve_previous_release_candidate_artifact
+
+  - id: deploy_workflows
+    title: Add environment deployment workflows with canary and rollback hooks
+    risk: high
+    acceptance_checks:
+      - deploy_workflows_exist_for_all_envs
+      - rollback_trigger_conditions_defined
+    rollback:
+      - disable_new_deploy_workflows
+      - revert_to_staging_only_release

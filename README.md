@@ -1,89 +1,89 @@
-# TellDoug
+# Housing Portal (AI-Moderated)
 
-Career management operating system - track your professional journey in one place.
+This project is a refactored Backroom scaffold for a UK-first affordable housing portal with:
 
-## Features
+- Multi-organization tenancy and role-based access (`applicant`, `caseworker`, `platform_admin`)
+- Strict pre-publish moderation for application fields, messages, documents, and assistant prompts
+- AI services for eligibility precheck, document extraction, and assistant guidance
+- Case queue, moderation queue, policy versioning, and operational reporting
 
-- **Profile Management** - Multiple resume variants with JSON Resume export
-- **Work History** - Jobs, projects, achievements with timeline view
-- **Network** - People, interactions, relationships tracking
-- **Skills** - Skill inventory with endorsements and growth tracking
-- **LinkedIn Import** - Parse and import your LinkedIn data with duplicate detection
-- **AI Assistant** - Query your career data, generate content drafts
+## Environment
 
-## Quick Start
+Edit `env.json`:
+
+- `FLOOT_DATABASE_URL`
+- `JWT_SECRET`
+- `OPENAI_API_KEY`
+- `MFA_BYPASS_CODE` (dev helper)
+- `OBJECT_STORAGE_BUCKET` (optional dependency health signal)
+- `SQS_QUEUE_URL` (optional dependency health signal)
+- `SLO_P95_LATENCY_MS_MAX`
+- `SLO_ERROR_RATE_MAX`
+- `SLO_QUEUE_DELAY_MINUTES_MAX`
+- `RELEASE_MARKER_TOKEN` (required for workflow-driven release markers)
+- `RELEASE_MARKER_ORG_ID` (fallback org id for service-token release markers)
+
+## Run
 
 ```bash
-# Install dependencies
-npm install
-
-# Copy environment template
-cp .env.example .env
-# Edit .env with your database URL and secrets
-
-# Run database migrations
-npm run migrate
-
-# Start development server
-npm run dev
+npm install --legacy-peer-deps
+npm run contracts:generate
+npm run build
+npm run start
 ```
 
-## Scripts
+App: `http://localhost:3333`
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Development server with hot reload |
-| `npm run build` | Production build |
-| `npm run test` | Run tests (watch mode) |
-| `npm run test:run` | Run tests once |
-| `npm run lint` | Check code style |
-| `npm run typecheck` | TypeScript validation |
-| `npm run quality` | Run all checks (typecheck + lint + test) |
+## API Surface
 
-## Architecture
+Implemented `_api` groups:
 
-- **Frontend:** React 18 + Vite + TanStack Query
-- **Backend:** Hono API endpoints with Zod validation
-- **Database:** PostgreSQL via Kysely ORM
-- **Auth:** JWT sessions + OAuth (Google, GitHub, LinkedIn)
-- **Export:** JSON Resume, DOCX, PDF formats
+- `auth`, `orgs`
+- `applicant`, `applications`
+- `documents`, `messages`
+- `cases`, `moderation`
+- `ai`, `audit`, `metrics`
+- `system` (`health/readiness`, `health/liveness`, `release/version`)
 
-## Environment Variables
+Additional internal endpoints:
 
-See `.env.example` for required configuration:
+- `GET /_api/system/health/dependencies`
+- `POST /_api/audit/release-marker`
+- `GET /_api/metrics/slo`
 
-- `FLOOT_DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - Session encryption key
-- `OPENAI_API_KEY` - For AI features (optional)
-- OAuth credentials for social login (optional)
+All JSON API routes use the same envelope shape:
 
-Generate secrets with:
+- Success: `{ data, correlationId }`
+- Error: `{ error: { code, message }, correlationId }`
+
+## Contracts and Autonomy
+
+- Frozen API artifacts are under `contracts/`:
+  - `housing-api.contract.snapshot.json`
+  - `openapi.housing.v1.json`
+  - `deprecation-policy.md`
+- Regenerate them with `npm run contracts:generate`.
+- Autonomous delivery scaffolding lives in `autonomy/` and CI workflows under `.github/workflows/`.
+
+## Test Suites
+
 ```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+npm run test:unit
+npm run test:integration
+npm run test:accessibility
+npm run test:e2e
+npm run test:security
+npm run test:all
 ```
 
-## Test Coverage
+## Infra and Deploy
 
-- **97 tests passing** (2 skipped)
-- Core helpers: duplicate detection, LinkedIn parser, import pipeline
-- Smoke tests: auth flows, profile CRUD, import/export
-
-## Version
-
-**v1.0.0-beta** - Initial beta release
-
----
-
-Made with [Floot](https://floot.dev)
-
-## Deployment (Vercel)
-
-The `vercel.yml` workflow deploys previews on pull requests and production on pushes/tags to `main`.
-
-Required repository secrets:
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-
-Set the Vercel project build output to `dist` (or keep `vercel.json` as the source of truth).
-
+- Terraform modules are under `infra/` (AWS `eu-west-2`).
+- Release artifact and deployment workflows:
+  - `.github/workflows/release-candidate.yml`
+  - `.github/workflows/deploy-dev.yml`
+  - `.github/workflows/deploy-staging.yml`
+  - `.github/workflows/deploy-prod.yml`
+  - `.github/workflows/control-plane-readiness.yml`
+- Operational phase playbook: `docs/autonomous-delivery-playbook.md`
+- External setup runbook: `docs/control-plane-unblock.md`
